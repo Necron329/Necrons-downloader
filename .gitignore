@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local folder for developers files
+dev-temp/
+
+# Electron-specific builds
+dist-electron/
+release/
+dist_electron/
+out/
