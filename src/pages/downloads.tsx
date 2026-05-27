@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+import downloadService from "../services/downloadService";
+
 
 const styles = {
   container: "p-6 max-w-xl bg-zinc-900 text-zinc-100 font-sans",
@@ -31,9 +34,14 @@ const styles = {
 };
 
 export default function Downloads() {
-  const [link, setLink] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
+
+  const { getVideoMetadata, downloadUrl, setDownloadUrl, status } = downloadService();
+
+  useEffect(() => {
+    console.log(status);
+  }, [status]);
 
   const validateLink = (value: string) => {
     try {
@@ -44,14 +52,24 @@ export default function Downloads() {
     }
   };
 
-  const handleAnalyze = () => {
-    const valid = validateLink(link);
+const handleAnalyze = async () => {
+    const valid = validateLink(downloadUrl);
     setIsValid(valid);
-    setAnalyzed(valid);
+    if (valid) {
+      try {
+        await getVideoMetadata();
+        setAnalyzed(true);
+      } catch (error) {
+        setAnalyzed(false);
+        console.error(error);
+      }
+    } else {
+      setAnalyzed(false);
+    }
   };
 
   const handleClear = () => {
-    setLink("");
+    setDownloadUrl("");
   };
 
   return (
@@ -59,13 +77,13 @@ export default function Downloads() {
       <h1 className={styles.header}>Downloads</h1>
 
       <div className={styles.inputWrapper}>
-        <input type="text" placeholder="Paste link here..."value={link}
+        <input type="text" placeholder="Paste link here..." value={downloadUrl}
             onChange={(e) => {
-            setLink(e.target.value);
+            setDownloadUrl(e.target.value);
             setAnalyzed(false);
           }} className={styles.input}
         />
-        {link && (
+        {downloadUrl && (
           <button onClick={handleClear} className={styles.clearBtn}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -77,7 +95,7 @@ export default function Downloads() {
       <div className="flex">
         <button
           onClick={handleAnalyze}
-          disabled={!link}
+          disabled={!downloadUrl}
           className={styles.button}
         >
           Analyze
