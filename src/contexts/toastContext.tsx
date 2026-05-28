@@ -4,11 +4,12 @@ interface ToastItem {
   id: number;
   message: string;
   duration?: number;
+  isExiting?: boolean;
 }
 
 interface ToastContextType {
   showToast: (message: string, duration?: number) => void;
-  removeToast: (id: number) => void;
+  triggerExit: (id: number) => void;
   toasts: ToastItem[];
 }
 
@@ -17,21 +18,28 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
-  const removeToast = useCallback((id: number) => {
+  const removeCompletely = useCallback((id: number) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const triggerExit = useCallback((id: number) => {
+    setToasts((prev) => 
+      prev.map((t) => t.id === id ? { ...t, isExiting: true } : t)
+    );
+    setTimeout(() => removeCompletely(id), 200);
+  }, [removeCompletely]);
+
   const showToast = useCallback((message: string, duration?: number) => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, duration }]);
+    const id = Math.random() + Date.now();
+    setToasts((prev) => [...prev, { id, message, duration, isExiting: false }]);
 
     if (duration && duration > 0) {
-      setTimeout(() => removeToast(id), duration);
+      setTimeout(() => triggerExit(id), duration);
     }
-  }, [removeToast]);
+  }, [triggerExit]);
 
   return (
-    <ToastContext.Provider value={{ showToast, removeToast, toasts }}>
+    <ToastContext.Provider value={{ showToast, triggerExit, toasts }}>
       {children}
     </ToastContext.Provider>
   );

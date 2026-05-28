@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { useToast } from "../contexts/toastContext";
+
 const styles = {
   container: "p-6 max-w-xl bg-zinc-900 text-zinc-100 font-sans",
   header: "text-xl font-semibold tracking-tight mb-6 text-white",
@@ -31,6 +33,8 @@ const styles = {
 };
 
 export default function Downloads() {
+  const { showToast } = useToast(); //test
+
   const [link, setLink] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
@@ -45,6 +49,9 @@ export default function Downloads() {
   };
 
   const handleAnalyze = () => {
+    showToast("LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONG");
+    showToast("This is a toast message!");
+    showToast("This is a timed toast message!", 2000);
     const valid = validateLink(link);
     setIsValid(valid);
     setAnalyzed(valid);
