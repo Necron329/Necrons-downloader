@@ -1,2 +1,42 @@
 @import 'tailwindcss';
 
+@keyframes toast-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animate-toast-out {
+  animation: toast-out 0.2s ease-in forwards;
+}
+
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.toast-active-scale:active {
+  transform: scale(0.97);
+  transition: transform 0.1s;
+}

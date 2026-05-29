@@ -1,9 +1,13 @@
 import { useState } from "react";
 import "./App.css";
 
+// context
+import { ToastProvider } from "./contexts/toastContext";
+
 // components
 import Header from "./components/header";
 import Sidebar from "./components/sidebar";
+import Toast from "./components/toast";
 
 // pages
 import Downloads from "./pages/downloads";
@@ -29,17 +33,21 @@ function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col">
-      <Header onToggleSidebar={toggleSidebar} />
+    <ToastProvider>
+      <div className="h-screen flex flex-col">
+        <Header onToggleSidebar={toggleSidebar} />
 
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar collapsed={collapsed} setCurrentPage={setCurrentPage} />
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar collapsed={collapsed} setCurrentPage={setCurrentPage} />
 
-        <main className="flex-1 bg-zinc-950 text-white p-4">
-          {renderPage()}
-        </main>
+          <main className="flex-1 bg-zinc-950 text-white p-4 overflow-y-auto">
+            {renderPage()}
+          </main>
+        </div>
       </div>
-    </div>
+      
+      <Toast />
+    </ToastProvider>
   );
 }
 
