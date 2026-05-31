@@ -1,8 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { spawn } from 'child_process';
 
 // --- CONFIGURATION & PATHS ---
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -64,19 +63,46 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
-// --- UTILITIES ---
-const execPromise = promisify(exec);
-
 // --- IPC HANDLERS ---
-ipcMain.handle('get-video-metadata', async (_, url: string): Promise<any> => {
-  try {
-    const command = `"${ytDlpPath}" -J --js-runtimes node --ffmpeg-location "${resourcesPath}" "${url} "`;
-    
-    const { stdout } = await execPromise(command);
-    
-    return JSON.parse(stdout);
-  } catch (error) {
-    console.error('Failed to fetch metadata:', error);
-    return { error: 'Could not fetch video metadata' };
+ipcMain.handle('get-video-metadata', async (_, url: string) => {
+  if (!ytDlpPath || !resourcesPath) {
+    return { error: 'Invalid internal paths' };
   }
+
+  return new Promise((resolve) => {
+    const child = spawn(ytDlpPath, [
+      '-j',
+      '--js-runtimes', 'node',
+      '--ffmpeg-location', resourcesPath,
+      url
+    ]);
+
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', d => (stdout += d));
+    child.stderr.on('data', d => (stderr += d));
+
+    child.on('error', err => {
+      resolve({ error: 'Process start failed', details: err.message });
+    });
+
+    child.on('close', (code) => {
+      if (code !== 0) {
+        return resolve({ error: 'yt-dlp failed', code, stderr });
+      }
+
+      try {
+        const data = stdout
+          .trim()
+          .split('\n')
+          .filter(Boolean)
+          .map(line => JSON.parse(line));
+
+        resolve(data);
+      } catch {
+        resolve({ error: 'Invalid JSON output' });
+      }
+    });
+  });
 });

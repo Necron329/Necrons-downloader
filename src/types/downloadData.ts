@@ -5,7 +5,6 @@ export interface VideoMetadata {
   duration: number;
   thumbnail: string;
   author: string;
-  isPlaylist: boolean;
   url: string;
 }
 

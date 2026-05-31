@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import downloadService from "../services/downloadService";
 
@@ -37,11 +37,7 @@ export default function Downloads() {
   const [isValid, setIsValid] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
 
-  const { getVideoMetadata, downloadUrl, setDownloadUrl, status } = downloadService();
-
-  useEffect(() => {
-    console.log(status);
-  }, [status]);
+  const { getVideoMetadata, downloadUrl, setDownloadUrl } = downloadService();
 
   const validateLink = (value: string) => {
     try {
