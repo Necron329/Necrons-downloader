@@ -1,11 +1,11 @@
 /// <reference types="vite/client" />
-import { DownloadRequest } from './types/downloadData';
+import { YtDlpRequest } from './types/downloadData';
 
 declare global {
   interface Window {
     electronAPI: {
-      getVideoMetadata: (url: string) => Promise<any>;
-      startDownload: (payload: DownloadRequest) => void;
+      getVideoMetadata: (payload: YtDlpRequest) => Promise<any>;
+      startDownload: (payload: YtDlpRequest) => void;
     }
   }
 }

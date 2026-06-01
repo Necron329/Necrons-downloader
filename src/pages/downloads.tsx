@@ -1,7 +1,6 @@
 import { useState } from "react";
 
-import downloadService from "../services/downloadService";
-
+import useDownloadService from "../services/useDownloadService";
 
 const styles = {
   container: "p-6 max-w-xl bg-zinc-900 text-zinc-100 font-sans",
@@ -37,7 +36,17 @@ export default function Downloads() {
   const [isValid, setIsValid] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
 
-  const { getVideoMetadata, downloadUrl, setDownloadUrl } = downloadService();
+  const {
+    getVideoMetadata,
+    downloadUrl,
+    setDownloadUrl,
+    format,
+    setFormat,
+    quality,
+    setQuality,
+    isPlaylist,
+    setIsPlaylist,
+  } = useDownloadService();
 
   const validateLink = (value: string) => {
     try {
@@ -48,10 +57,8 @@ export default function Downloads() {
     }
   };
 
-const handleAnalyze = async () => {
-    const valid = validateLink(downloadUrl);
-    setIsValid(valid);
-    if (valid) {
+  const handleAnalyze = async () => {
+    if (isValid) {
       try {
         await getVideoMetadata();
         setAnalyzed(true);
@@ -73,16 +80,30 @@ const handleAnalyze = async () => {
       <h1 className={styles.header}>Downloads</h1>
 
       <div className={styles.inputWrapper}>
-        <input type="text" placeholder="Paste link here..." value={downloadUrl}
-            onChange={(e) => {
+        <input
+          type="text"
+          placeholder="Paste link here..."
+          value={downloadUrl}
+          onChange={(e) => {
             setDownloadUrl(e.target.value);
-            setAnalyzed(false);
-          }} className={styles.input}
+            validateLink(e.target.value) ? setIsValid(true) : setIsValid(false);
+          }}
+          className={styles.input}
         />
         {downloadUrl && (
           <button onClick={handleClear} className={styles.clearBtn}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         )}
@@ -112,18 +133,26 @@ const handleAnalyze = async () => {
           {/* Format Setting */}
           <div className={styles.settingRow}>
             <label className={styles.label}>Format</label>
-            <select disabled={!analyzed} className={styles.select}>
-              <option>MP4</option>
-              <option>MP3</option>
+            <select
+              className={styles.select}
+              value={format}
+              onChange={(e) => setFormat(e.target.value)}
+            >
+              <option value="mp4">MP4</option>
+              <option value="mp3">MP3</option>
             </select>
           </div>
 
           {/* Quality Setting */}
           <div className={styles.settingRow}>
             <label className={styles.label}>Quality</label>
-            <select disabled={!analyzed} className={styles.select}>
-              <option>Best</option>
-              <option>Low</option>
+            <select
+              className={styles.select}
+              value={quality}
+              onChange={(e) => setQuality(e.target.value as 'best' | 'worst')}
+            >
+              <option value="best">Best</option>
+              <option value="worst">Worst</option>
             </select>
           </div>
         </div>
@@ -132,8 +161,9 @@ const handleAnalyze = async () => {
         <label className={styles.checkboxWrapper}>
           <input
             type="checkbox"
-            disabled={!analyzed}
             className={styles.checkbox}
+            checked={isPlaylist}
+            onChange={(e) => setIsPlaylist(e.target.checked)}
           />
           <span className="text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
             Playlist mode

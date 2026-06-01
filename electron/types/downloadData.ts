@@ -1,15 +1,35 @@
-export type statusType = 'idle' | 'analyzing' | 'ready' | 'downloading' | 'success' | 'error';
+export type StatusType =
+  | 'idle'
+  | 'analyzing'
+  | 'ready'
+  | 'downloading'
+  | 'success'
+  | 'error';
 
 export interface VideoMetadata {
   title: string;
-  duration: number;
-  thumbnail: string;
-  author: string;
-  isPlaylist: boolean;
+  duration?: number;
+  thumbnail?: string;
+  author?: string;
   url: string;
 }
 
-export interface DownloadRequest {
+type BaseRequest = {
   url: string;
-  type: 'video' | 'playlist';
-}
+  isPlaylist?: boolean;
+};
+
+export type FetchRequest = BaseRequest & {
+  type: 'fetch';
+  format?: string;
+  flatPlaylist?: boolean;
+};
+
+export type DownloadRequest = BaseRequest & {
+  type: 'download';
+  outputPath: string;
+  format?: string;
+  quality?: 'best' | 'worst' | number;
+};
+
+export type YtDlpRequest = FetchRequest | DownloadRequest;

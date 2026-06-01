@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { DownloadRequest } from './types/downloadData';
+import { YtDlpRequest } from './types/downloadData';
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  getVideoMetadata: (url: string) => ipcRenderer.invoke('get-video-metadata', url),
-  startDownload: (payload: DownloadRequest) => ipcRenderer.invoke('start-download', payload)
+  getVideoMetadata: (payload: YtDlpRequest) => ipcRenderer.invoke('get-video-metadata', payload),
+  startDownload: (payload: YtDlpRequest) => ipcRenderer.invoke('start-download', payload)
 });

@@ -3,6 +3,9 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawn } from 'child_process';
 
+// --- TYPE DEFINITIONS ---
+import { YtDlpRequest } from './types/downloadData';
+
 // --- CONFIGURATION & PATHS ---
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const APP_ROOT = path.join(__dirname, '..')
@@ -11,16 +14,14 @@ const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 const RENDERER_DIST = path.join(APP_ROOT, 'dist')
 const VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(APP_ROOT, 'public') : RENDERER_DIST
 
-// DYNAMICZNE ŚCIEŻKI DO ZASOBÓW (ffmpeg, yt-dlp)
+// DYNAMIC PATHS FOR RESOURCES
 let resourcesPath: string
 let ytDlpPath: string
 
 if (app.isPackaged) {
-  // Po spakowaniu: resources znajduje się wewnątrz folderu głównego aplikacji (obok .exe)
   resourcesPath = path.join(process.resourcesPath, "resources")
   ytDlpPath = path.join(resourcesPath, "yt-dlp.exe")
 } else {
-  // Tryb deweloperski: resources znajduje się w głównym folderze projektu
   resourcesPath = path.join(APP_ROOT, "resources")
   ytDlpPath = path.join(resourcesPath, "yt-dlp.exe")
 }
@@ -64,18 +65,28 @@ app.on('activate', () => {
 })
 
 // --- IPC HANDLERS ---
-ipcMain.handle('get-video-metadata', async (_, url: string) => {
+ipcMain.handle('get-video-metadata', async (_, payload: YtDlpRequest) => {
   if (!ytDlpPath || !resourcesPath) {
     return { error: 'Invalid internal paths' };
   }
 
+  const { url, isPlaylist } = payload;
+
+  const args: string[] = [
+    '-j',
+    '--js-runtimes', 'node',
+  ];
+
+if (isPlaylist) {
+    args.push('--flat-playlist'); 
+  } else {
+    args.push('--no-playlist');
+  }
+
+  args.push(url);
+
   return new Promise((resolve) => {
-    const child = spawn(ytDlpPath, [
-      '-j',
-      '--js-runtimes', 'node',
-      '--ffmpeg-location', resourcesPath,
-      url
-    ]);
+    const child = spawn(ytDlpPath, args);
 
     let stdout = '';
     let stderr = '';
@@ -100,8 +111,8 @@ ipcMain.handle('get-video-metadata', async (_, url: string) => {
           .map(line => JSON.parse(line));
 
         resolve(data);
-      } catch {
-        resolve({ error: 'Invalid JSON output' });
+      } catch (e: any) {
+        resolve({ error: 'Invalid JSON output', details: e.message });
       }
     });
   });
