@@ -38,6 +38,7 @@ export default function Downloads() {
 
   const {
     getVideoMetadata,
+    processDownloadLink,
     downloadUrl,
     setDownloadUrl,
     format,
@@ -70,6 +71,16 @@ export default function Downloads() {
       setAnalyzed(false);
     }
   };
+  
+  const handleDownload = () => {
+    if (isValid && analyzed) {
+      try {
+        processDownloadLink();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
 
   const handleClear = () => {
     setDownloadUrl("");
@@ -121,6 +132,7 @@ export default function Downloads() {
         <button
           disabled={!analyzed || !isValid}
           className={styles.secondaryButton}
+          onClick={handleDownload}
         >
           Download
         </button>
