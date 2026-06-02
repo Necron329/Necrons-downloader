@@ -29,7 +29,7 @@ export type DownloadRequest = BaseRequest & {
   type: 'download';
   outputPath: string;
   format?: string;
-  quality?: 'best' | 'worst' | number;
+  quality?: 'best' | 'worst';
 };
 
 export type YtDlpRequest = FetchRequest | DownloadRequest;

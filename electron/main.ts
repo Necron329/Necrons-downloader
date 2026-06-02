@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawn } from 'child_process';
+import fs from 'node:fs';
 
 // --- TYPE DEFINITIONS ---
 import { YtDlpRequest } from './types/downloadData';
@@ -64,6 +65,24 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
+// --- HELPER FUNCTIONS ---
+const getValidatedPath = (outputPath: string): string => {
+  const template = '%(title)s.%(ext)s';
+  const defaultPath = path.join(app.getPath('downloads'), template);
+
+  if (!outputPath || outputPath.trim() === '') {
+    return defaultPath;
+  }
+
+  try {
+    if (fs.statSync(outputPath).isDirectory()) {
+      return path.join(outputPath, template);
+    }
+  } catch { }
+
+  return defaultPath;
+};
+
 // --- IPC HANDLERS ---
 ipcMain.handle('get-video-metadata', async (_, payload: YtDlpRequest) => {
   if (!ytDlpPath || !resourcesPath) {
@@ -77,8 +96,8 @@ ipcMain.handle('get-video-metadata', async (_, payload: YtDlpRequest) => {
     '--js-runtimes', 'node',
   ];
 
-if (isPlaylist) {
-    args.push('--flat-playlist'); 
+  if (isPlaylist) {
+    args.push('--flat-playlist');
   } else {
     args.push('--no-playlist');
   }
@@ -114,6 +133,68 @@ if (isPlaylist) {
       } catch (e: any) {
         resolve({ error: 'Invalid JSON output', details: e.message });
       }
+    });
+  });
+});
+
+ipcMain.handle('start-download', async (_, payload: YtDlpRequest) => {
+  if (!ytDlpPath || !resourcesPath) {
+    return { error: 'Invalid internal paths' };
+  }
+
+  if (payload.type !== 'download') {
+    return { error: 'Invalid request type' };
+  }
+
+  const { url, format, quality, isPlaylist } = payload;
+  const finalOutputPath = getValidatedPath(payload.outputPath);
+
+  const args: string[] = [
+    url,
+    '--output', finalOutputPath,
+    '--ffmpeg-location', resourcesPath,
+    '--newline',
+    '--progress'
+  ];
+
+  if (format === 'mp3') {
+    args.push(
+      '--extract-audio',
+      '--audio-format', 'mp3',
+      '--audio-quality', quality === 'best' ? '0' : '5'
+    );
+  } else {
+    const formatSelector =
+      quality === 'worst'
+        ? 'wv*+wa[ext=m4a]/w[ext=mp4]'
+        : 'bv*+ba[ext=m4a]/b[ext=mp4]';
+
+    args.push(
+      '-f', formatSelector,
+      '--merge-output-format', 'mp4'
+    );
+  }
+  if (!isPlaylist) {
+    args.push('--no-playlist');
+  }
+
+  return new Promise((resolve) => {
+    const child = spawn(ytDlpPath, args);
+
+    child.stdout.on('data', (data) => {
+      const text = data.toString();
+      console.log(text);
+    });
+
+    child.on('error', (err) => {
+      resolve({ error: 'Failed to start', details: err.message });
+    });
+
+    child.on('close', (code) => {
+      resolve(code === 0
+        ? { success: true, path: finalOutputPath }
+        : { error: 'Download failed', code }
+      );
     });
   });
 });

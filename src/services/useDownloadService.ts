@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 
-import { YtDlpRequest, StatusType, VideoMetadata } from '../../electron/types/downloadData';
+import { YtDlpRequest, StatusType, VideoMetadata } from '../types/downloadData';
 
 export default function downloadService() {
     // consts declarations
@@ -20,6 +20,10 @@ export default function downloadService() {
         return { type: 'fetch', url: downloadUrl, isPlaylist };
     }, [downloadUrl, isPlaylist]);
 
+    const DownloadRequestData = useMemo<YtDlpRequest>(() => {
+        return { type: 'download', url: downloadUrl, format : format, quality : quality, outputPath : outputPath, isPlaylist};
+    }, [downloadUrl, format, quality, outputPath, isPlaylist]);
+
     // API functions
     const getVideoMetadata = async () => {
         if (!downloadUrl) return;
@@ -27,7 +31,6 @@ export default function downloadService() {
         setStatus('analyzing');
 
         try {
-            console.log('Wysyłanie żądania metadanych dla:', FetchRequestData);
             const results = await window.electronAPI.getVideoMetadata(FetchRequestData);
 
             if (results && results.error) {
@@ -41,8 +44,6 @@ export default function downloadService() {
             setVideoData(finalData);
             setStatus('success');
 
-            console.log('Otrzymane metadane:', finalData);
-
         } catch (error) {
             setStatus('error');
             console.error('Error fetching video metadata:', error);
@@ -50,7 +51,17 @@ export default function downloadService() {
     };
 
     const processDownloadLink = async () => {
+        if (!downloadUrl) return;
 
+        setStatus('downloading');
+
+        try {
+            await window.electronAPI.startDownload(DownloadRequestData);
+            setStatus('success');
+        } catch (error) {
+            setStatus('error');
+            console.error('Error starting download:', error);
+        }
     };
 
     // returning the consts
