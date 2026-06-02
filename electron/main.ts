@@ -5,7 +5,7 @@ import { spawn } from 'child_process';
 import fs from 'node:fs';
 
 // --- TYPE DEFINITIONS ---
-import { YtDlpRequest } from './types/downloadData';
+import { YtDlpRequest } from '../shared/types/downloadData';
 
 // --- CONFIGURATION & PATHS ---
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -20,7 +20,7 @@ let resourcesPath: string
 let ytDlpPath: string
 
 if (app.isPackaged) {
-  resourcesPath = path.join(process.resourcesPath, "resources")
+  resourcesPath = path.join(process.resourcesPath)
   ytDlpPath = path.join(resourcesPath, "yt-dlp.exe")
 } else {
   resourcesPath = path.join(APP_ROOT, "resources")

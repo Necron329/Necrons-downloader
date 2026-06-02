@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 
-import { YtDlpRequest, StatusType, VideoMetadata } from '../types/downloadData';
+import { YtDlpRequest, StatusType, VideoMetadata } from '../../shared/types/downloadData';
 
 export default function downloadService() {
     // consts declarations

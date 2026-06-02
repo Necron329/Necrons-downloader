@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { YtDlpRequest } from './types/downloadData';
+import { YtDlpRequest } from '../shared/types/downloadData';
 
 declare global {
   interface Window {
