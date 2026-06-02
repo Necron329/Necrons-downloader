@@ -137,7 +137,6 @@ ipcMain.handle('get-video-metadata', async (_, payload: YtDlpRequest) => {
   });
 });
 
-// fix ignoring quality
 ipcMain.handle('start-download', async (_, payload: YtDlpRequest) => {
   if (!ytDlpPath || !resourcesPath) {
     return { error: 'Invalid internal paths' };
@@ -165,16 +164,16 @@ ipcMain.handle('start-download', async (_, payload: YtDlpRequest) => {
       '--audio-quality', quality === 'best' ? '0' : '5'
     );
   } else {
-    args.push(
-      '-f', 'bv*+ba[ext=m4a]/b[ext=mp4]',
-      '--merge-output-format', 'mp4',
+    const formatSelector =
       quality === 'worst'
         ? 'wv*+wa[ext=m4a]/w[ext=mp4]'
-        : 'bv*+ba[ext=m4a]/b[ext=mp4]',
+        : 'bv*+ba[ext=m4a]/b[ext=mp4]';
+
+    args.push(
+      '-f', formatSelector,
       '--merge-output-format', 'mp4'
     );
   }
-
   if (!isPlaylist) {
     args.push('--no-playlist');
   }
