@@ -1,6 +1,5 @@
 export type StatusType =
   | 'idle'
-  | 'analyzing'
   | 'ready'
   | 'downloading'
   | 'success'

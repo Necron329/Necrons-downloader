@@ -20,16 +20,9 @@ export default function downloadService() {
         return { type: 'fetch', url: downloadUrl, isPlaylist };
     }, [downloadUrl, isPlaylist]);
 
-    const DownloadRequestData = useMemo<YtDlpRequest>(() => {
-        return { type: 'download', url: downloadUrl, format : format, quality : quality, outputPath : outputPath, isPlaylist};
-    }, [downloadUrl, format, quality, outputPath, isPlaylist]);
-
     // API functions
     const getVideoMetadata = async () => {
         if (!downloadUrl) return;
-
-        setStatus('analyzing');
-
         try {
             const results = await window.electronAPI.getVideoMetadata(FetchRequestData);
 
@@ -38,19 +31,17 @@ export default function downloadService() {
                 console.error(results.error, results.stderr);
                 return;
             }
-
             const finalData = Array.isArray(results) ? results : [results];
-
+            console.log('Fetched video metadata:', finalData);
             setVideoData(finalData);
             setStatus('success');
-
         } catch (error) {
             setStatus('error');
             console.error('Error fetching video metadata:', error);
         }
     };
 
-    const processDownloadLink = async () => {
+    const processDownloadLink = async (DownloadRequestData: YtDlpRequest) => {
         if (!downloadUrl) return;
 
         setStatus('downloading');
