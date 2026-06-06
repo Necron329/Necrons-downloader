@@ -1,52 +1,68 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
-interface ToastItem {
-  id: number;
+interface ToastData {
+  id: string;
   message: string;
-  duration?: number;
   isExiting?: boolean;
+  duration?: number;
 }
 
 interface ToastContextType {
-  showToast: (message: string, duration?: number) => void;
-  triggerExit: (id: number) => void;
-  toasts: ToastItem[];
+  toasts: ToastData[];
+  addToast: (message: string, duration?: number) => void;
+  triggerExit: (id: string) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
-  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [toasts, setToasts] = useState<ToastData[]>([]);
 
-  const removeCompletely = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+  const triggerExit = (id: string) => {
+    setToasts((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, isExiting: true } : t))
+    );
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 300);
+  };
+
+  const addToast = (message: string, duration: number = 4000) => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, duration }]);
+
+    if (duration > 0) {
+      setTimeout(() => {
+        triggerExit(id);
+      }, duration);
+    }
+  };
+
+  useEffect(() => {
+    if (window.electronAPI && typeof window.electronAPI.onShowToast === 'function') {
+      const unsubscribe = window.electronAPI.onShowToast((data) => {
+        addToast(data.message, data.duration);
+      });
+
+      if (typeof window.electronAPI.registerToastReady === 'function') {
+        window.electronAPI.registerToastReady();
+      }
+
+      return () => unsubscribe();
+    }
   }, []);
 
-  const triggerExit = useCallback((id: number) => {
-    setToasts((prev) => 
-      prev.map((t) => t.id === id ? { ...t, isExiting: true } : t)
-    );
-    setTimeout(() => removeCompletely(id), 200);
-  }, [removeCompletely]);
-
-  const showToast = useCallback((message: string, duration?: number) => {
-    const id = Math.random() + Date.now();
-    setToasts((prev) => [...prev, { id, message, duration, isExiting: false }]);
-
-    if (duration && duration > 0) {
-      setTimeout(() => triggerExit(id), duration);
-    }
-  }, [triggerExit]);
-
   return (
-    <ToastContext.Provider value={{ showToast, triggerExit, toasts }}>
+    <ToastContext.Provider value={{ toasts, addToast, triggerExit }}>
       {children}
     </ToastContext.Provider>
   );
 }
 
-export const useToast = () => {
+export function useToast() {
   const context = useContext(ToastContext);
-  if (!context) throw new Error('useToast must be used within ToastProvider');
+  if (!context) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
   return context;
-};
+}

@@ -1,0 +1,32 @@
+You are an expert software developer and technical writer. Your task is to generate a professional, clean, and comprehensive release changelog based on the git commit history provided below.
+
+Please adhere to the following strict guidelines:
+
+Language: Write the entire changelog in English.
+
+Tone: Strictly professional, objective, and technical. Focus on the actual impact and value delivered to the end-user or developer.
+
+Structure: Organize the changes into the following standard semantic categories using clean Markdown headings:
+
+Features (for new capabilities or enhancements)
+
+Bug Fixes (for resolved defects and stability improvements)
+
+Refactoring & Maintenance (for code optimizations, architectural cleanups, or dependency updates)
+
+Documentation (for updates to instructions, guides, or README files)
+
+Formatting & Style:
+
+Use clean Markdown bullet points.
+
+Do not raw copy-paste commit messages. Rephrase them to use the imperative mood (e.g., "Add multi-language support", "Fix connection timeout logic") and ensure proper capitalization and grammar.
+
+Remove any git metadata, merge noise, or branch reference artifacts.
+
+Output Constraints: Return ONLY the raw Markdown content. Do NOT wrap the entire response in markdown code blocks (such as ```markdown). Do NOT include introductory phrases, greetings, or sign-offs. Begin directly with the first relevant section heading.
+
+Empty Sections: If there are no commits applicable to a specific category, omit that section entirely.
+
+Here is the git commit history to process:
+{{COMMITS}}

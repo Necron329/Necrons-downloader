@@ -11,7 +11,7 @@ import Toast from "./components/toast";
 
 // pages
 import Downloads from "./pages/downloads";
-import Settings from "./pages/settings";
+ import Settings from "./pages/settings";
 
 function App() {
   const [collapsed, setCollapsed] = useState(true);
@@ -25,8 +25,8 @@ function App() {
     switch (currentPage) {
       case "downloads":
         return <Downloads />;
-      case "settings":
-        return <Settings />;
+       case "settings":
+         return <Settings />;
       default:
         return <Downloads />;
     }

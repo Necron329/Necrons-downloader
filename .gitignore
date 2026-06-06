@@ -27,6 +27,9 @@ resources/
 # Local folder for developers files
 dev-temp/
 
+#auto updater dev file
+dev-app-update.yml
+
 # Electron-specific builds
 dist-electron/
 release/

@@ -1,0 +1,64 @@
+name: Build and Release Electron App
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Setup Script
+        run: npm run setup
+
+      - name: Generate AI Changelog (Google Gemini)
+        id: ai_changelog
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        shell: bash
+        run: |
+          # Fetch commits since last tag (or get all if it is the first tag)
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)
+          if [ -z "$PREV_TAG" ]; then
+            git log --pretty=format:"- %s" > .github/raw-commits.txt
+          else
+            git log $PREV_TAG..HEAD --pretty=format:"- %s" > .github/raw-commits.txt
+          fi
+          
+          # Run the external script
+          node .github/generate-changelog.js
+
+      - name: Build Electron App
+        run: npm run build -- --publish never
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          prerelease: false
+          body_path: changelog.txt
+          files: |
+            release/Necrons-Downloader-Setup-*.exe
+            release/latest.yml
+            release/Necrons-Downloader-Setup-*.exe.blockmap

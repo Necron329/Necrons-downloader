@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawn } from 'child_process';
 import fs from 'node:fs';
+import { autoUpdater } from 'electron-updater';
 
 // --- TYPE DEFINITIONS ---
 import { YtDlpRequest } from '../shared/types/downloadData';
@@ -28,6 +29,18 @@ if (app.isPackaged) {
 }
 
 let win: BrowserWindow | null = null
+let isWindowReady = false; // Flag informujący, czy React nasłuchuje
+const toastQueue: string[] = []; // Kolejka na wiadomości wysłane za wcześnie
+
+// --- HELPER TO SEND TOASTS ---
+function sendToast(message: string, duration: number = 4000) {
+  const payload = { message, duration };
+  if (win && win.webContents && isWindowReady) {
+    win.webContents.send('show-toast', payload);
+  } else {
+    toastQueue.push(JSON.stringify(payload));
+  }
+}
 
 // --- WINDOW MANAGEMENT ---
 function createWindow() {
@@ -36,6 +49,7 @@ function createWindow() {
     width: 1100,
     height: 800,
     webPreferences: {
+      // Ładowanie preload.mjs zgodnie z Twoją strukturą budowania
       preload: path.join(__dirname, 'preload.mjs'),
     },
   })
@@ -52,7 +66,14 @@ function createWindow() {
 }
 
 // --- APP LIFECYCLE ---
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow();
+
+  // Rozpocznij procedurę auto-update z lekkim opóźnieniem
+  setTimeout(() => {
+    autoUpdater.checkForUpdates();
+  }, 1500);
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -84,6 +105,19 @@ const getValidatedPath = (outputPath: string): string => {
 };
 
 // --- IPC HANDLERS ---
+ipcMain.handle('register-toast-ready', () => {
+  isWindowReady = true;
+  console.log('React is ready for toasts. Flushing queue...');
+  
+  while (toastQueue.length > 0) {
+    const msg = toastQueue.shift();
+    if (msg) {
+      sendToast(msg);
+    }
+  }
+  return { success: true };
+});
+
 ipcMain.handle('get-video-metadata', async (_, payload: YtDlpRequest) => {
   if (!ytDlpPath || !resourcesPath) {
     return { error: 'Invalid internal paths' };
@@ -197,4 +231,32 @@ ipcMain.handle('start-download', async (_, payload: YtDlpRequest) => {
       );
     });
   });
+});
+
+
+// --- AUTO-UPDATER ---
+if (!app.isPackaged) {
+  autoUpdater.updateConfigPath = path.join(APP_ROOT, "dev-app-update.yml");
+  autoUpdater.forceDevUpdateConfig = true;
+  autoUpdater.autoDownload = true;
+}
+
+autoUpdater.on('checking-for-update', () => {
+  sendToast('Checking for application updates...');
+});
+
+autoUpdater.on('update-available', (info) => {
+  sendToast(`New update v${info.version} is available! It will now download and install automatically.`);
+});
+
+autoUpdater.on('update-not-available', () => {
+  sendToast('Your software is up to date.');
+});
+
+autoUpdater.on('error', (err) => {
+  sendToast(`Update checking error: ${err.message}`, 0);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  sendToast(`Update v${info.version} downloaded! Please restart application to apply changes.`);
 });

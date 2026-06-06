@@ -6,6 +6,8 @@ declare global {
     electronAPI: {
       getVideoMetadata: (payload: YtDlpRequest) => Promise<any>;
       startDownload: (payload: YtDlpRequest) => void;
+      registerToastReady: () => Promise<any>;
+      onShowToast: (callback: (data: { message: string; duration: number }) => void) => () => void;
     }
   }
 }
