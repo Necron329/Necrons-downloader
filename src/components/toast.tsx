@@ -1,4 +1,4 @@
-import { useToast } from '../contexts/toastContext';
+import { useToast } from '../contexts/toastProvider';
 
 export default function Toast() {
   const { toasts, triggerExit } = useToast();

@@ -12,8 +12,11 @@ export default function downloadService() {
     const [outputPath, setOutputPath] = useState<string>('');
     const [isPlaylist, setIsPlaylist] = useState<boolean>(false);
 
-
     const [videoData, setVideoData] = useState<VideoMetadata[]>([]);
+
+    //imported from downloads page
+    const [isValid, setIsValid] = useState(false);
+    const [analyzed, setAnalyzed] = useState(false);
 
     // memos
     const FetchRequestData = useMemo<YtDlpRequest>(() => {
@@ -59,6 +62,10 @@ export default function downloadService() {
     return {
         downloadUrl,
         setDownloadUrl,
+        isValid,
+        setIsValid,
+        analyzed,
+        setAnalyzed,
         status,
         setStatus,
         format,

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import useDownloadService from "../services/useDownloadService";
+import { useDownloadService }from "../contexts/downloadProvider";
 import VideoDisplayer from "../components/videoDisplayer";
 
 const styles = {
@@ -21,15 +20,16 @@ const styles = {
 };
 
 export default function Downloads() {
-  const [isValid, setIsValid] = useState(false);
-  const [analyzed, setAnalyzed] = useState(false);
-
   const {
     getVideoMetadata,
     videoData,
     processDownloadLink,
     downloadUrl,
     setDownloadUrl,
+    isValid,
+    setIsValid,
+    analyzed,
+    setAnalyzed,
     format,
     setFormat,
     quality,

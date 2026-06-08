@@ -2,7 +2,8 @@ import { useState } from "react";
 import "./App.css";
 
 // context
-import { ToastProvider } from "./contexts/toastContext";
+import { ToastProvider } from "./contexts/toastProvider";
+import { DownloadProvider } from "./contexts/downloadProvider";
 
 // components
 import Header from "./components/header";
@@ -11,7 +12,7 @@ import Toast from "./components/toast";
 
 // pages
 import Downloads from "./pages/downloads";
- import Settings from "./pages/settings";
+import Settings from "./pages/settings";
 
 function App() {
   const [collapsed, setCollapsed] = useState(true);
@@ -25,8 +26,8 @@ function App() {
     switch (currentPage) {
       case "downloads":
         return <Downloads />;
-       case "settings":
-         return <Settings />;
+      case "settings":
+        return <Settings />;
       default:
         return <Downloads />;
     }
@@ -34,19 +35,21 @@ function App() {
 
   return (
     <ToastProvider>
-      <div className="h-screen flex flex-col">
-        <Header onToggleSidebar={toggleSidebar} />
+      <DownloadProvider>
+        <div className="h-screen flex flex-col">
+          <Header onToggleSidebar={toggleSidebar} />
 
-        <div className="flex flex-1 overflow-hidden">
-          <Sidebar collapsed={collapsed} setCurrentPage={setCurrentPage} />
+          <div className="flex flex-1 overflow-hidden">
+            <Sidebar collapsed={collapsed} setCurrentPage={setCurrentPage} />
 
-          <main className="flex-1 bg-zinc-950 text-white p-4 overflow-y-auto">
-            {renderPage()}
-          </main>
+            <main className="flex-1 bg-zinc-950 text-white p-4 overflow-y-auto">
+              {renderPage()}
+            </main>
+          </div>
         </div>
-      </div>
-      
-      <Toast />
+
+        <Toast />
+      </DownloadProvider>
     </ToastProvider>
   );
 }
