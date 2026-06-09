@@ -38,6 +38,7 @@ export default function Downloads() {
     setQuality,
     isPlaylist,
     setIsPlaylist,
+    updateSettings,
   } = useDownloadService();
 
   const validateLink = (value: string) => {
@@ -144,7 +145,11 @@ export default function Downloads() {
             <select
               className={styles.select}
               value={format}
-              onChange={(e) => setFormat(e.target.value)}
+              onChange={(e) => {
+                const nextFormat = e.target.value;
+                setFormat(nextFormat);
+                updateSettings({ format: nextFormat });
+              }}
             >
               <option value="mp4">MP4</option>
               <option value="mp3">MP3</option>
@@ -156,7 +161,11 @@ export default function Downloads() {
             <select
               className={styles.select}
               value={quality}
-              onChange={(e) => setQuality(e.target.value as "best" | "worst")}
+              onChange={(e) => {
+                const nextQuality = e.target.value as "best" | "worst";
+                setQuality(nextQuality);
+                updateSettings({ quality: nextQuality });
+              }}
             >
               <option value="best">Best</option>
               <option value="worst">Worst</option>
@@ -169,7 +178,11 @@ export default function Downloads() {
             type="checkbox"
             className={styles.checkbox}
             checked={isPlaylist}
-            onChange={(e) => setIsPlaylist(e.target.checked)}
+            onChange={(e) => {
+              const nextIsPlaylist = e.target.checked;
+              setIsPlaylist(nextIsPlaylist);
+              updateSettings({ isPlaylist: nextIsPlaylist });
+            }}
           />
           <span className={styles.checkboxLabel}>Playlist mode</span>
         </label>

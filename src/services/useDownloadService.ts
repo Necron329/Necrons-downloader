@@ -6,7 +6,7 @@ import { AppConfig } from '../../shared/types/configData';
 import { useConfigService } from './useConfigService';
 
 export default function downloadService() {
-    const { getSettings } = useConfigService();
+    const { getSettings, updateSettings } = useConfigService();
 
     // consts declarations
     const [status, setStatus] = useState<StatusType>('idle');
@@ -107,6 +107,7 @@ export default function downloadService() {
         setIsPlaylist,
         videoData,
         getVideoMetadata,
+        updateSettings,
         processDownloadLink
     } as const;
 } 
