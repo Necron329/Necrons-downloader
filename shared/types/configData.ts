@@ -1,6 +1,6 @@
 export interface AppConfig {
-  theme: 'light' | 'dark' | 'system';
-  downloadPath: string;
-  autoUpdate: boolean;
-  developerMode: boolean;
+  quality: 'best' | 'worst';
+  format: string;
+  outputPath: string;
+  isPlaylist: boolean;
 }

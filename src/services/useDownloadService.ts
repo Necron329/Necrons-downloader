@@ -1,16 +1,44 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 import { YtDlpRequest, StatusType, VideoMetadata } from '../../shared/types/downloadData';
+import { AppConfig } from '../../shared/types/configData';
+
+import { useConfigService } from './useConfigService';
 
 export default function downloadService() {
+    const { getSettings } = useConfigService();
+
     // consts declarations
     const [status, setStatus] = useState<StatusType>('idle');
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const [downloadUrl, setDownloadUrl] = useState<string>('');
     const [format, setFormat] = useState<string>('mp4');
     const [quality, setQuality] = useState<'best' | 'worst'>('best');
     const [outputPath, setOutputPath] = useState<string>('');
     const [isPlaylist, setIsPlaylist] = useState<boolean>(false);
+
+    useEffect(() => {
+        const initSettings = async () => {
+            try {
+                setIsLoading(true);
+                const settings: AppConfig = await getSettings();
+                if (settings) {
+                    if (settings.quality) setQuality(settings.quality);
+                    if (settings.format) setFormat(settings.format);
+                    if (settings.outputPath) setOutputPath(settings.outputPath);
+                    if (settings.isPlaylist !== undefined) setIsPlaylist(settings.isPlaylist);
+                }
+            } catch (error) {
+                console.error("Błąd podczas ładowania ustawień:", error);
+                setStatus('error');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        initSettings();
+    }, []);
 
     const [videoData, setVideoData] = useState<VideoMetadata[]>([]);
 
@@ -66,6 +94,7 @@ export default function downloadService() {
         setIsValid,
         analyzed,
         setAnalyzed,
+        isLoading,
         status,
         setStatus,
         format,
