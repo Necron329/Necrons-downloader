@@ -8,7 +8,7 @@ declare global {
       startDownload: (payload: YtDlpRequest) => void;
 
       getSettings: () => Promise<AppConfig>;
-      updateSettings: (newConfig: Partial<AppConfig>) => Promise<boolean>;
+      updateSettings: (newPartialConfig: Partial<AppConfig>) => Promise<boolean>;
 
       registerToastReady: () => Promise<any>;
       onShowToast: (callback: (data: { message: string; duration: number }) => void) => () => void;
