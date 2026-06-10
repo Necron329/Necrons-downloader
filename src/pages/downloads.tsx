@@ -1,8 +1,8 @@
-import { useDownloadService }from "../contexts/downloadProvider";
+import { useDownloadService } from "../contexts/downloadProvider";
 import VideoDisplayer from "../components/videoDisplayer";
 
 const styles = {
-  container: "w-full p-6 max-w-xl mx-auto mt-10 bg-zinc-900 text-zinc-100 font-sans rounded-2xl border border-zinc-800 shadow-2xl",
+  container: "relative overflow-hidden w-full p-6 max-w-xl mx-auto mt-10 bg-zinc-900 text-zinc-100 font-sans rounded-2xl border border-zinc-800 shadow-2xl",
   header: "text-xl font-semibold tracking-tight mb-6 text-white",
   inputArea: "relative mb-4",
   input: "w-full pl-4 pr-10 py-2 bg-zinc-950 border border-zinc-800 rounded-lg outline-none transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 placeholder:text-zinc-600 text-sm",
@@ -17,6 +17,7 @@ const styles = {
   checkboxWrapper: "flex items-center space-x-2 cursor-pointer group mt-4",
   checkbox: "w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-950 text-indigo-600 focus:ring-offset-zinc-900 focus:ring-indigo-500 transition-all",
   checkboxLabel: "text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors",
+  loadingOverlay: "absolute inset-0 bg-zinc-950/70 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all duration-300",
 };
 
 export default function Downloads() {
@@ -24,6 +25,7 @@ export default function Downloads() {
     getVideoMetadata,
     videoData,
     processDownloadLink,
+    isLoading,
     downloadUrl,
     setDownloadUrl,
     isValid,
@@ -36,6 +38,7 @@ export default function Downloads() {
     setQuality,
     isPlaylist,
     setIsPlaylist,
+    updateSettings,
   } = useDownloadService();
 
   const validateLink = (value: string) => {
@@ -86,6 +89,17 @@ export default function Downloads() {
 
   return (
     <div className={styles.container}>
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className={styles.loadingOverlay}>
+          <svg className="animate-spin h-8 w-8 text-indigo-500 mb-2" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0110.458-7.641L12 8.359V2a10 10 0 00-10 10h2z" />
+          </svg>
+          <span className="text-xs font-medium text-zinc-400">Loading settings...</span>
+        </div>
+      )}
+
       <h1 className={styles.header}>Downloads</h1>
 
       {/* Input Link Section */}
@@ -131,7 +145,11 @@ export default function Downloads() {
             <select
               className={styles.select}
               value={format}
-              onChange={(e) => setFormat(e.target.value)}
+              onChange={(e) => {
+                const nextFormat = e.target.value;
+                setFormat(nextFormat);
+                updateSettings({ format: nextFormat });
+              }}
             >
               <option value="mp4">MP4</option>
               <option value="mp3">MP3</option>
@@ -143,7 +161,11 @@ export default function Downloads() {
             <select
               className={styles.select}
               value={quality}
-              onChange={(e) => setQuality(e.target.value as "best" | "worst")}
+              onChange={(e) => {
+                const nextQuality = e.target.value as "best" | "worst";
+                setQuality(nextQuality);
+                updateSettings({ quality: nextQuality });
+              }}
             >
               <option value="best">Best</option>
               <option value="worst">Worst</option>
@@ -156,7 +178,11 @@ export default function Downloads() {
             type="checkbox"
             className={styles.checkbox}
             checked={isPlaylist}
-            onChange={(e) => setIsPlaylist(e.target.checked)}
+            onChange={(e) => {
+              const nextIsPlaylist = e.target.checked;
+              setIsPlaylist(nextIsPlaylist);
+              updateSettings({ isPlaylist: nextIsPlaylist });
+            }}
           />
           <span className={styles.checkboxLabel}>Playlist mode</span>
         </label>

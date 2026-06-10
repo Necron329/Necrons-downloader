@@ -1,7 +1,7 @@
 {
   "name": "necrons-downloader",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "setup": "node setup-resources.js",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "electron-store": "^11.0.2",
     "electron-updater": "^6.8.3",
     "lucide-react": "^1.16.0",
     "react": "^18.2.0",

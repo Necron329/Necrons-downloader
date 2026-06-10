@@ -4,9 +4,15 @@ import { fileURLToPath } from 'node:url'
 import { spawn } from 'child_process';
 import fs from 'node:fs';
 import { autoUpdater } from 'electron-updater';
+import Store from 'electron-store';
 
-// --- TYPE DEFINITIONS ---
+// --- CONSTANTS, VARIABLES & TYPES ---
 import { YtDlpRequest } from '../shared/types/downloadData';
+const configStore = new Store({name: 'user-config',});
+let win: BrowserWindow | null = null
+let isWindowReady = false;
+const toastQueue: string[] = [];
+
 
 // --- CONFIGURATION & PATHS ---
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -28,10 +34,6 @@ if (app.isPackaged) {
   ytDlpPath = path.join(resourcesPath, "yt-dlp.exe")
 }
 
-let win: BrowserWindow | null = null
-let isWindowReady = false; // Flag informujący, czy React nasłuchuje
-const toastQueue: string[] = []; // Kolejka na wiadomości wysłane za wcześnie
-
 // --- HELPER TO SEND TOASTS ---
 function sendToast(message: string, duration: number = 4000) {
   const payload = { message, duration };
@@ -49,7 +51,6 @@ function createWindow() {
     width: 1100,
     height: 800,
     webPreferences: {
-      // Ładowanie preload.mjs zgodnie z Twoją strukturą budowania
       preload: path.join(__dirname, 'preload.mjs'),
     },
   })
@@ -69,7 +70,6 @@ function createWindow() {
 app.whenReady().then(() => {
   createWindow();
 
-  // Rozpocznij procedurę auto-update z lekkim opóźnieniem
   setTimeout(() => {
     autoUpdater.checkForUpdates();
   }, 1500);
@@ -233,6 +233,25 @@ ipcMain.handle('start-download', async (_, payload: YtDlpRequest) => {
   });
 });
 
+ipcMain.handle('config:get-settings', () => {
+  try {
+    return configStore.store;
+  } catch (error) {
+    console.error('Błąd podczas odczytu electron-store:', error);
+    return null;
+  }
+});
+
+ipcMain.handle('config:update-settings', (_event, newPartialConfig) => {
+  try {
+    // electron-store pozwala przekazać cały obiekt jako Partial i sam go scali
+    configStore.set(newPartialConfig);
+    return true; 
+  } catch (error) {
+    console.error('Błąd podczas zapisu w electron-store:', error);
+    return false;
+  }
+});
 
 // --- AUTO-UPDATER ---
 if (!app.isPackaged) {
