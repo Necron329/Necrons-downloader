@@ -7,16 +7,16 @@ const styles = {
   header: "text-xl font-semibold tracking-tight mb-6 text-white",
   inputArea: "relative mb-4",
   input: "w-full pl-4 pr-10 py-2 bg-zinc-950 border border-zinc-800 rounded-lg outline-none transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 placeholder:text-zinc-600 text-sm",
-  clearBtn: "absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-zinc-500 hover:text-zinc-200 transition-colors",
-  analyzeBtn: "w-full px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-[0.97] bg-zinc-100 text-zinc-900 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500",
+  clearBtn: "absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-zinc-500 hover:text-zinc-200 transition-colors cursor-pointer",
+  analyzeBtn: "w-full px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-[0.97] bg-zinc-100 text-zinc-900 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 cursor-pointer disabled:cursor-default",
   configSection: "mt-6 pt-4 border-t border-zinc-800",
   configTitle: "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 mb-3",
   settingsGrid: "grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4",
   settingRow: "flex items-center justify-between gap-4",
   label: "text-xs font-medium text-zinc-400 whitespace-nowrap",
-  select: "w-32 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 disabled:opacity-30 transition-all",
+  select: "w-32 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 disabled:opacity-30 transition-all cursor-pointer",
   checkboxWrapper: "flex items-center space-x-2 cursor-pointer group mt-4",
-  checkbox: "w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-950 text-indigo-600 focus:ring-offset-zinc-900 focus:ring-indigo-500 transition-all",
+  checkbox: "w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-950 text-indigo-600 focus:ring-offset-zinc-900 focus:ring-indigo-500 transition-all cursor-pointer",
   checkboxLabel: "text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors",
   loadingOverlay: "absolute inset-0 bg-zinc-950/70 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all duration-300",
 };
@@ -192,7 +192,7 @@ export default function Downloads() {
               <button 
                 type="button"
                 onClick={handleSelectFolder}
-                className="p-2 bg-zinc-950 border-y border-r border-zinc-800 rounded-r text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95]"
+                className="p-2 bg-zinc-950 border-y border-r border-zinc-800 rounded-r text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95] cursor-pointer"
                 title="Select folder"
               >
                 <FolderOpen className="w-4 h-4" />
