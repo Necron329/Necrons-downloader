@@ -1,5 +1,6 @@
 import { useDownloadService } from "../contexts/downloadProvider";
 import VideoDisplayer from "../components/videoDisplayer";
+import { Loader2, X, FolderOpen } from "lucide-react";
 
 const styles = {
   container: "relative overflow-hidden w-full p-6 max-w-xl mx-auto mt-10 bg-zinc-900 text-zinc-100 font-sans rounded-2xl border border-zinc-800 shadow-2xl",
@@ -14,7 +15,6 @@ const styles = {
   settingRow: "flex items-center justify-between gap-4",
   label: "text-xs font-medium text-zinc-400 whitespace-nowrap",
   select: "w-32 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 disabled:opacity-30 transition-all",
-  textInput: "w-40 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 transition-all text-zinc-200 placeholder:text-zinc-700", // Added for path input
   checkboxWrapper: "flex items-center space-x-2 cursor-pointer group mt-4",
   checkbox: "w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-950 text-indigo-600 focus:ring-offset-zinc-900 focus:ring-indigo-500 transition-all",
   checkboxLabel: "text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors",
@@ -76,7 +76,7 @@ export default function Downloads() {
           format,
           quality,
           isPlaylist,
-          outputPath: "",
+          outputPath,
         });
       } catch (error) {
         console.error(error);
@@ -90,15 +90,16 @@ export default function Downloads() {
     setAnalyzed(false);
   };
 
+  const handleSelectFolder = async () => {
+    
+  };
+
   return (
     <div className={styles.container}>
       {/* Loading Overlay */}
       {isLoading && (
         <div className={styles.loadingOverlay}>
-          <svg className="animate-spin h-8 w-8 text-indigo-500 mb-2" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0110.458-7.641L12 8.359V2a10 10 0 00-10 10h2z" />
-          </svg>
+          <Loader2 className="animate-spin h-8 w-8 text-indigo-500 mb-2" />
           <span className="text-xs font-medium text-zinc-400">Loading settings...</span>
         </div>
       )}
@@ -120,9 +121,7 @@ export default function Downloads() {
         />
         {downloadUrl && (
           <button onClick={handleClear} className={styles.clearBtn}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="w-4 h-4" />
           </button>
         )}
       </div>
@@ -175,20 +174,30 @@ export default function Downloads() {
             </select>
           </div>
 
-          {/* Output Path Configuration Row */}
-          <div className={styles.settingRow}>
+          {/* Full-width Output Path Component Row */}
+          <div className="flex flex-col gap-2 sm:col-span-2 mt-2">
             <label className={styles.label}>Output Path</label>
-            <input
-              type="text"
-              placeholder="e.g. /downloads"
-              className={styles.textInput}
-              value={outputPath || ""}
-              onChange={(e) => {
-                const nextPath = e.target.value;
-                setOutputPath(nextPath);
-                updateSettings({ outputPath: nextPath });
-              }}
-            />
+            <div className="flex items-center w-full">
+              <input
+                type="text"
+                placeholder="e.g. C:\Users\Name\Downloads"
+                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-l px-3 py-1.5 text-xs outline-none focus:border-indigo-500 transition-all text-zinc-200 placeholder:text-zinc-700"
+                value={outputPath || ""}
+                onChange={(e) => {
+                  const nextPath = e.target.value;
+                  setOutputPath(nextPath);
+                  updateSettings({ outputPath: nextPath });
+                }}
+              />
+              <button 
+                type="button"
+                onClick={handleSelectFolder}
+                className="p-2 bg-zinc-950 border-y border-r border-zinc-800 rounded-r text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95]"
+                title="Select folder"
+              >
+                <FolderOpen className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
