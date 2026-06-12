@@ -10,10 +10,11 @@ const styles = {
   analyzeBtn: "w-full px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-[0.97] bg-zinc-100 text-zinc-900 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500",
   configSection: "mt-6 pt-4 border-t border-zinc-800",
   configTitle: "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 mb-3",
-  settingsGrid: "grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2",
+  settingsGrid: "grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4",
   settingRow: "flex items-center justify-between gap-4",
   label: "text-xs font-medium text-zinc-400 whitespace-nowrap",
   select: "w-32 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 disabled:opacity-30 transition-all",
+  textInput: "w-40 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 transition-all text-zinc-200 placeholder:text-zinc-700", // Added for path input
   checkboxWrapper: "flex items-center space-x-2 cursor-pointer group mt-4",
   checkbox: "w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-950 text-indigo-600 focus:ring-offset-zinc-900 focus:ring-indigo-500 transition-all",
   checkboxLabel: "text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors",
@@ -38,6 +39,8 @@ export default function Downloads() {
     setQuality,
     isPlaylist,
     setIsPlaylist,
+    outputPath,
+    setOutputPath,
     updateSettings,
   } = useDownloadService();
 
@@ -170,6 +173,22 @@ export default function Downloads() {
               <option value="best">Best</option>
               <option value="worst">Worst</option>
             </select>
+          </div>
+
+          {/* Output Path Configuration Row */}
+          <div className={styles.settingRow}>
+            <label className={styles.label}>Output Path</label>
+            <input
+              type="text"
+              placeholder="e.g. /downloads"
+              className={styles.textInput}
+              value={outputPath || ""}
+              onChange={(e) => {
+                const nextPath = e.target.value;
+                setOutputPath(nextPath);
+                updateSettings({ outputPath: nextPath });
+              }}
+            />
           </div>
         </div>
 
