@@ -260,20 +260,16 @@ if (!app.isPackaged) {
   autoUpdater.autoDownload = true;
 }
 
-autoUpdater.on('checking-for-update', () => {
-  sendToast('Checking for application updates...');
-});
-
 autoUpdater.on('update-available', (info) => {
-  sendToast(`New update v${info.version} is available! It will now download and install automatically.`);
+  sendToast(`New update v${info.version} is available! It is now downloading, wait for another toast confirming installation...`);
 });
 
 autoUpdater.on('update-not-available', () => {
-  sendToast('Your software is up to date.');
+  console.log('App is up to date.');
 });
 
 autoUpdater.on('error', (err) => {
-  sendToast(`Update checking error: ${err.message}`, 0);
+  sendToast(`Auto updater encountered an error: ${err.message}`, 0);
 });
 
 autoUpdater.on('update-downloaded', (info) => {
