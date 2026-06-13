@@ -1,9 +1,17 @@
-name: Build and Release Electron App
+name: Trigger New Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Select version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 permissions:
   contents: write
@@ -24,6 +32,24 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump Version and Create Tag
+        id: bump_version
+        run: |
+          npm version ${{ github.event.inputs.version_type }} -m "chore(release): bump version to %s [skip ci]"
+          # Extract version from package.json and set it as output for subsequent steps
+          $ver = (Get-Content package.json | ConvertFrom-Json).version
+          echo "tag_name=v$ver" >> $env:GITHUB_OUTPUT
+
+      - name: Push Changes and Tag
+        run: |
+          git push origin main
+          git push origin --tags
+
       - name: Install dependencies
         run: npm ci
 
@@ -36,7 +62,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         shell: bash
         run: |
-          # Fetch commits since last tag (or get all if it is the first tag)
+          # Fetch commit history between the previous tag and current HEAD
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)
           if [ -z "$PREV_TAG" ]; then
             git log --pretty=format:"- %s" > .github/raw-commits.txt
@@ -44,7 +70,6 @@ jobs:
             git log $PREV_TAG..HEAD --pretty=format:"- %s" > .github/raw-commits.txt
           fi
           
-          # Run the external script
           node .github/generate-changelog.js
 
       - name: Build Electron App
@@ -55,7 +80,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          draft: true
+          tag_name: ${{ steps.bump_version.outputs.tag_name }}
+          draft: false
           prerelease: false
           body_path: changelog.txt
           files: |
