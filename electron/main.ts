@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawn } from 'child_process';
@@ -231,6 +231,19 @@ ipcMain.handle('start-download', async (_, payload: YtDlpRequest) => {
       );
     });
   });
+});
+
+ipcMain.handle('dialog:chooseDirectory', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title: 'Select Download Directory',
+    properties: ['openDirectory'],
+  });
+
+  if (canceled) {
+    return '';
+  } else {
+    return filePaths[0];
+  }
 });
 
 ipcMain.handle('config:get-settings', () => {

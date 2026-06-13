@@ -86,6 +86,20 @@ export default function downloadService() {
         }
     };
 
+    const chooseDirectory = async (): Promise<void> => {
+        try {
+            const selectedPath = await window.electronAPI.chooseDirectory();
+
+            if (selectedPath) {
+                setOutputPath(selectedPath);
+                updateSettings({ outputPath: selectedPath });
+                console.log("Wybrana ścieżka:", selectedPath);
+            }
+        } catch (error) {
+            console.error("Błąd podczas wyboru folderu:", error);
+        }
+    };
+
     // returning the consts
     return {
         downloadUrl,
@@ -106,6 +120,7 @@ export default function downloadService() {
         isPlaylist,
         setIsPlaylist,
         videoData,
+        chooseDirectory,
         getVideoMetadata,
         updateSettings,
         processDownloadLink

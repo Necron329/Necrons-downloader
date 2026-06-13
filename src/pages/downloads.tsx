@@ -41,6 +41,7 @@ export default function Downloads() {
     setIsPlaylist,
     outputPath,
     setOutputPath,
+    chooseDirectory,
     updateSettings,
   } = useDownloadService();
 
@@ -91,7 +92,7 @@ export default function Downloads() {
   };
 
   const handleSelectFolder = async () => {
-    
+    await chooseDirectory();
   };
 
   return (
