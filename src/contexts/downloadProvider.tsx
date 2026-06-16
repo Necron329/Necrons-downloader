@@ -1,24 +1,24 @@
-import { createContext, useContext } from 'react';
-import useDownloadServiceRaw from '../services/useDownloadService';
+  import { createContext, useContext } from 'react';
+  import useDownloadServiceRaw from '../services/useDownloadService';
 
-type DownloadContextType = ReturnType<typeof useDownloadServiceRaw>;
+  type DownloadContextType = ReturnType<typeof useDownloadServiceRaw>;
 
-const DownloadContext = createContext<DownloadContextType | undefined>(undefined);
+  const DownloadContext = createContext<DownloadContextType | undefined>(undefined);
 
-export function DownloadProvider({ children }: { children: React.ReactNode }) {
-  const downloadService = useDownloadServiceRaw();
+  export function DownloadProvider({ children }: { children: React.ReactNode }) {
+    const downloadService = useDownloadServiceRaw();
 
-  return (
-    <DownloadContext.Provider value={downloadService}>
-      {children}
-    </DownloadContext.Provider>
-  );
-}
-
-export function useDownloadService() {
-  const context = useContext(DownloadContext);
-  if (!context) {
-    throw new Error('useDownloadService must be used within a DownloadProvider');
+    return (
+      <DownloadContext.Provider value={downloadService}>
+        {children}
+      </DownloadContext.Provider>
+    );
   }
-  return context;
-}
+
+  export function useDownloadService() {
+    const context = useContext(DownloadContext);
+    if (!context) {
+      throw new Error('useDownloadService must be used within a DownloadProvider');
+    }
+    return context;
+  }
