@@ -9,10 +9,10 @@ import Store from 'electron-store';
 // --- CONSTANTS, VARIABLES & TYPES ---
 import { YtDlpRequest } from '../shared/types/downloadData';
 const configStore = new Store({name: 'user-config',});
+let isAutoUpdateEnabled = configStore.get('autoUpdate', true);
 let win: BrowserWindow | null = null
 let isWindowReady = false;
 const toastQueue: string[] = [];
-
 
 // --- CONFIGURATION & PATHS ---
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -71,7 +71,11 @@ app.whenReady().then(() => {
   createWindow();
 
   setTimeout(() => {
-    autoUpdater.checkForUpdates();
+    if (isAutoUpdateEnabled) {
+      autoUpdater.checkForUpdates();
+    } else {
+      console.log('Auto-update is disabled by user settings.');
+    }
   }, 1500);
 })
 

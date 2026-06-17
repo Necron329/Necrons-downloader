@@ -14,7 +14,7 @@ const styles = {
 };
 
 export default function Settings() {
-  const { settings, updateSettings, checking, setChecking } = useSettingsService();
+  const { settings, setSettings, updateSettings, checking, setChecking } = useSettingsService();
 
   const handleCheckForUpdates = () => {
     setChecking(true);
@@ -37,7 +37,13 @@ export default function Settings() {
               type="checkbox"
               className={styles.checkbox}
               checked={settings.autoUpdate}
-              onChange={(e) => updateSettings({ autoUpdate: e.target.checked })}
+              onChange={(e) => {
+                const isChecked = e.target.checked;
+                
+                updateSettings({ isAutoUpdateEnabled: isChecked });
+                
+                setSettings(prev => ({ ...prev, autoUpdate: isChecked }));
+              }}
             />
             <span className={styles.checkboxLabel}>Automatic updates</span>
           </label>
