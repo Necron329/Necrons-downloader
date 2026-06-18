@@ -16,6 +16,21 @@ export default function useSettingsService() {
 
   const { getSettings, updateSettings } = useConfigService();
 
+  const checkForUpdates = async () => {
+    setChecking(true);
+    try {
+      const result = await window.electronAPI.checkForUpdates();
+      if (result && result.error) {
+        console.error("Error checking for updates:", result.error);
+      }
+    } catch (error) {
+      console.error("Error while checking for updates:", error);
+    } finally {
+      setChecking(false);
+    
+    }
+  };
+
   useEffect(() => {
           const initSettings = async () => {
               try {
@@ -38,6 +53,7 @@ export default function useSettingsService() {
     setSettings,
     checking,
     setChecking,
-    updateSettings
+    updateSettings,
+    checkForUpdates
   };
 }

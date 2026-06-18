@@ -14,13 +14,10 @@ const styles = {
 };
 
 export default function Settings() {
-  const { settings, setSettings, updateSettings, checking, setChecking } = useSettingsService();
+  const { settings, setSettings, updateSettings, checking, checkForUpdates } = useSettingsService();
 
   const handleCheckForUpdates = () => {
-    setChecking(true);
-    
-    // TODO: Implement actual update verification logic using the backend
-    setTimeout(() => setChecking(false), 2000);
+    checkForUpdates();
   };
 
   return (
