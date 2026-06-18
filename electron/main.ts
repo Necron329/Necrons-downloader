@@ -8,11 +8,11 @@ import Store from 'electron-store';
 
 // --- CONSTANTS, VARIABLES & TYPES ---
 import { YtDlpRequest } from '../shared/types/downloadData';
-const configStore = new Store({name: 'user-config',});
+const configStore = new Store({ name: 'user-config', });
+let isAutoUpdateEnabled = configStore.get('autoUpdate', true);
 let win: BrowserWindow | null = null
 let isWindowReady = false;
 const toastQueue: string[] = [];
-
 
 // --- CONFIGURATION & PATHS ---
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -71,7 +71,11 @@ app.whenReady().then(() => {
   createWindow();
 
   setTimeout(() => {
-    autoUpdater.checkForUpdates();
+    if (isAutoUpdateEnabled) {
+      autoUpdater.checkForUpdates();
+    } else {
+      console.log('Auto-update is disabled by user settings.');
+    }
   }, 1500);
 })
 
@@ -108,7 +112,7 @@ const getValidatedPath = (outputPath: string): string => {
 ipcMain.handle('register-toast-ready', () => {
   isWindowReady = true;
   console.log('React is ready for toasts. Flushing queue...');
-  
+
   while (toastQueue.length > 0) {
     const msg = toastQueue.shift();
     if (msg) {
@@ -259,10 +263,23 @@ ipcMain.handle('config:update-settings', (_event, newPartialConfig) => {
   try {
     // electron-store pozwala przekazać cały obiekt jako Partial i sam go scali
     configStore.set(newPartialConfig);
-    return true; 
+    return true;
   } catch (error) {
     console.error('Błąd podczas zapisu w electron-store:', error);
     return false;
+  }
+});
+
+ipcMain.handle('check-for-updates', async () => {
+  try {
+    const results = await autoUpdater.checkForUpdates();
+    if (!results?.isUpdateAvailable) {
+      sendToast('No updates available. You are on the latest version.');
+    }
+    return results;
+  } catch (error) {
+    console.error('Error while checking for updates:', error);
+    return { error: 'Failed to check for updates' };
   }
 });
 
@@ -275,10 +292,6 @@ if (!app.isPackaged) {
 
 autoUpdater.on('update-available', (info) => {
   sendToast(`New update v${info.version} is available! It is now downloading, wait for another toast confirming installation...`);
-});
-
-autoUpdater.on('update-not-available', () => {
-  console.log('App is up to date.');
 });
 
 autoUpdater.on('error', (err) => {

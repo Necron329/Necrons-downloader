@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getVideoMetadata: (payload: YtDlpRequest) => ipcRenderer.invoke('get-video-metadata', payload),
   startDownload: (payload: YtDlpRequest) => ipcRenderer.invoke('start-download', payload),
 
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+
   chooseDirectory: () => ipcRenderer.invoke('dialog:chooseDirectory'),
 
   getSettings: () => ipcRenderer.invoke('config:get-settings'),

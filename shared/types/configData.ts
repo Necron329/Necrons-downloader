@@ -3,4 +3,5 @@ export interface AppConfig {
   format: string;
   outputPath: string;
   isPlaylist: boolean;
+  isAutoUpdateEnabled: boolean;
 }

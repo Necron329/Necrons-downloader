@@ -4,6 +4,7 @@ import "./App.css";
 // context
 import { ToastProvider } from "./contexts/toastProvider";
 import { DownloadProvider } from "./contexts/downloadProvider";
+import { SettingsProvider } from "./contexts/settingsProvider";
 
 // components
 import Header from "./components/header";
@@ -35,21 +36,23 @@ function App() {
 
   return (
     <ToastProvider>
-      <DownloadProvider>
-        <div className="h-screen flex flex-col">
-          <Header onToggleSidebar={toggleSidebar} />
+      <SettingsProvider>
+        <DownloadProvider>
+          <div className="h-screen flex flex-col">
+            <Header onToggleSidebar={toggleSidebar} />
 
-          <div className="flex flex-1 overflow-hidden">
-            <Sidebar collapsed={collapsed} setCurrentPage={setCurrentPage} />
+            <div className="flex flex-1 overflow-hidden">
+              <Sidebar collapsed={collapsed} setCurrentPage={setCurrentPage} />
 
-            <main className="flex-1 bg-zinc-950 text-white p-4 overflow-y-auto">
-              {renderPage()}
-            </main>
+              <main className="flex-1 bg-zinc-950 text-white p-4 overflow-y-auto">
+                {renderPage()}
+              </main>
+            </div>
           </div>
-        </div>
 
-        <Toast />
-      </DownloadProvider>
+          <Toast />
+        </DownloadProvider>
+      </SettingsProvider>
     </ToastProvider>
   );
 }

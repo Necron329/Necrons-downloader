@@ -7,6 +7,8 @@ declare global {
       getVideoMetadata: (payload: YtDlpRequest) => Promise<any>;
       startDownload: (payload: YtDlpRequest) => void;
 
+      checkForUpdates: () => Promise<{ error?: string }>;
+
       chooseDirectory: () => Promise<string | ''>;
 
       getSettings: () => Promise<AppConfig>;
