@@ -274,7 +274,7 @@ ipcMain.handle('check-for-updates', async () => {
   try {
     const results = await autoUpdater.checkForUpdates();
     if (!results?.isUpdateAvailable) {
-      sendToast('No updates available. You are on the latest version.');
+      sendToast('No updates available. You are on the latest version.', 3000);
     }
     return results;
   } catch (error) {
@@ -291,7 +291,7 @@ if (!app.isPackaged) {
 }
 
 autoUpdater.on('update-available', (info) => {
-  sendToast(`New update v${info.version} is available! It is now downloading, wait for another toast confirming installation...`);
+  sendToast(`New update v${info.version} is available! It is now downloading, wait for another toast confirming installation...`, 0);
 });
 
 autoUpdater.on('error', (err) => {
@@ -299,5 +299,5 @@ autoUpdater.on('error', (err) => {
 });
 
 autoUpdater.on('update-downloaded', (info) => {
-  sendToast(`Update v${info.version} downloaded! Please restart application to apply changes.`);
+  sendToast(`Update v${info.version} downloaded! Please restart application to apply changes.`, 0);
 });
