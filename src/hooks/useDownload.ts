@@ -3,10 +3,10 @@ import { useState, useMemo, useEffect } from 'react';
 import { YtDlpRequest, StatusType, VideoMetadata } from '../../shared/types/downloadData';
 import { AppConfig } from '../../shared/types/configData';
 
-import { useConfigService } from './useConfigService';
+import { settingsApi } from "../api/settingsApi";
 
 export default function downloadService() {
-    const { getSettings, updateSettings } = useConfigService();
+    const { getSettings, updateSettings } = settingsApi();
 
     // consts declarations
     const [status, setStatus] = useState<StatusType>('idle');

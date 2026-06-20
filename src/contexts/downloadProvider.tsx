@@ -1,5 +1,5 @@
   import { createContext, useContext } from 'react';
-  import useDownloadServiceRaw from '../services/useDownloadService';
+  import useDownloadServiceRaw from '../hooks/useDownload';
 
   type DownloadContextType = ReturnType<typeof useDownloadServiceRaw>;
 

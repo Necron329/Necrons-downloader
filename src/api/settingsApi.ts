@@ -1,6 +1,6 @@
 import { AppConfig } from '../../shared/types/configData';
 
-export const useConfigService = () => {
+export const settingsApi = () => {
   
   const getSettings = async (): Promise<AppConfig> => {
     try {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import useSettingsServiceRaw from '../services/useSettingsService';
+import useSettingsServiceRaw from '../hooks/useSettings';
 
 type SettingsContextType = ReturnType<typeof useSettingsServiceRaw>;
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AppConfig } from "../../shared/types/configData";
-import { useConfigService } from "./useConfigService";
+import { settingsApi } from "../api/settingsAPI";
 
 export interface SettingsState {
   autoUpdate: boolean;
@@ -14,7 +14,7 @@ export default function useSettingsService() {
   const [settings, setSettings] = useState<SettingsState>(defaultSettings);
   const [checking, setChecking] = useState<boolean>(false);
 
-  const { getSettings, updateSettings } = useConfigService();
+  const { getSettings, updateSettings } = settingsApi();
 
   const checkForUpdates = async () => {
     setChecking(true);
