@@ -53,22 +53,31 @@ const VideoDisplayer: React.FC<VideoDisplayerProps> = ({ videos, onDownload, sta
   };
 
   const renderProgressBar = () => {
-    if (!isDownloading || !progress) return null;
-    return (
-      <div className={styles.progressContainer}>
-        <div className={styles.progressBarWrapper}>
-          <div
-            className={styles.progressBar}
-            style={{ width: `${progress.percent}%` }}
-          />
-        </div>
-        <div className={styles.progressStats}>
-          <span>{progress.percent}% ({progress.filesize})</span>
-          <span>{progress.speed} — ETA: {progress.eta}</span>
-        </div>
+  const showProgress = status === 'downloading' || status === 'success';
+  
+  if (!showProgress || !progress) return null;
+  
+  return (
+    <div className={styles.progressContainer}>
+      <div className={styles.progressBarWrapper}>
+        <div 
+          className={`${styles.progressBar} ${status === 'success' ? 'bg-green-500' : 'bg-indigo-500'}`} 
+          style={{ width: status === 'success' ? '100%' : `${progress.percent}%` }}
+        />
       </div>
-    );
-  };
+      <div className={styles.progressStats}>
+        {status === 'success' ? (
+          <span className="text-green-400 font-bold">Download done.</span>
+        ) : (
+          <>
+            <span>{progress.percent}% ({progress.filesize})</span>
+            <span>{progress.speed} — ETA: {progress.eta}</span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
   return (
     <div className={`${styles.wrapper} ${className}`}>

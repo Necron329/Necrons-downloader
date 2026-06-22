@@ -26,8 +26,8 @@ export function sendToast(message: string, duration: number = 4000) {
 export function createWindow() {
   win = new BrowserWindow({
     icon: path.join(VITE_PUBLIC, 'electron-vite.svg'),
-    width: 1100,
-    height: 800,
+    width: 840,
+    height: 1000,
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },

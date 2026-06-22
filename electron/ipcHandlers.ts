@@ -107,6 +107,7 @@ export function setupIpcHandlers() {
       url,
       '--output', finalOutputPath,
       '--ffmpeg-location', resourcesPath,
+      '--js-runtimes', 'node',
       '--newline',
       '--progress'
     ];
