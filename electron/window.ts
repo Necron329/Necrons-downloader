@@ -25,7 +25,7 @@ export function sendToast(message: string, duration: number = 4000) {
 
 export function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(VITE_PUBLIC, 'electron-vite.svg'),
+    icon: path.join(__dirname, '../assets/icon.ico'),
     width: 1100,
     height: 800,
     webPreferences: {
