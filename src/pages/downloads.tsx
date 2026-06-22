@@ -27,6 +27,7 @@ export default function Downloads() {
     videoData,
     processDownloadLink,
     isLoading,
+    status,
     downloadUrl,
     setDownloadUrl,
     isValid,
@@ -43,6 +44,7 @@ export default function Downloads() {
     setOutputPath,
     chooseDirectory,
     updateSettings,
+    progress
   } = useDownloadService();
 
   const validateLink = (value: string) => {
@@ -219,7 +221,12 @@ export default function Downloads() {
 
       {/* Results Section */}
       {analyzed && videoData.length > 0 && (
-        <VideoDisplayer videos={videoData} onDownload={handleDownload} />
+        <VideoDisplayer 
+          videos={videoData} 
+          onDownload={handleDownload} 
+          status={status}
+          progress={progress}
+        />
       )}
     </div>
   );

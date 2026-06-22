@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 
-import { YtDlpRequest, StatusType, VideoMetadata } from '../../shared/types/downloadData';
+import { YtDlpRequest, StatusType, VideoMetadata, ProgressPayload } from '../../shared/types/downloadData';
 import { AppConfig } from '../../shared/types/configData';
 
 import { settingsApi } from "../api/settingsApi";
@@ -17,6 +17,8 @@ export default function downloadService() {
     const [quality, setQuality] = useState<'best' | 'worst'>('best');
     const [outputPath, setOutputPath] = useState<string>('');
     const [isPlaylist, setIsPlaylist] = useState<boolean>(false);
+
+    const [progress, setProgress] = useState<ProgressPayload | null>(null);
 
     useEffect(() => {
         const initSettings = async () => {
@@ -38,6 +40,18 @@ export default function downloadService() {
         };
 
         initSettings();
+    }, []);
+
+    useEffect(() => {
+        const unsubscribe = window.electronAPI.onDownloadProgress((data: ProgressPayload) => {
+            setProgress(data);
+        });
+
+        return () => {
+            if (typeof unsubscribe === 'function') {
+                unsubscribe();
+            }
+        };
     }, []);
 
     const [videoData, setVideoData] = useState<VideoMetadata[]>([]);
@@ -76,6 +90,7 @@ export default function downloadService() {
         if (!downloadUrl) return;
 
         setStatus('downloading');
+        setProgress(null);
 
         try {
             await window.electronAPI.startDownload(DownloadRequestData);
@@ -123,6 +138,7 @@ export default function downloadService() {
         chooseDirectory,
         getVideoMetadata,
         updateSettings,
-        processDownloadLink
+        processDownloadLink,
+        progress
     } as const;
 } 
