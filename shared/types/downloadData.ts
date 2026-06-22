@@ -13,6 +13,13 @@ export interface VideoMetadata {
   url: string;
 }
 
+export interface ProgressPayload {
+  percent:  number;
+  filesize: string;
+  speed:    string;
+  eta:      string;
+}
+
 type BaseRequest = {
   url: string;
   isPlaylist?: boolean;
