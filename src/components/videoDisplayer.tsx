@@ -1,13 +1,6 @@
-import { VideoMetadata, StatusType } from '../../shared/types/downloadData';
+import { VideoMetadata, StatusType, ProgressPayload } from '../../shared/types/downloadData';
 import { Loader2 } from "lucide-react";
 
-// Definicja przekazanego payloadu
-export interface ProgressPayload {
-  percent: number;
-  filesize: string;
-  speed: string;
-  eta: string;
-}
 
 interface VideoDisplayerProps {
   videos: VideoMetadata[];
@@ -53,31 +46,38 @@ const VideoDisplayer: React.FC<VideoDisplayerProps> = ({ videos, onDownload, sta
   };
 
   const renderProgressBar = () => {
-  const showProgress = status === 'downloading' || status === 'success';
-  
-  if (!showProgress || !progress) return null;
-  
-  return (
-    <div className={styles.progressContainer}>
-      <div className={styles.progressBarWrapper}>
-        <div 
-          className={`${styles.progressBar} ${status === 'success' ? 'bg-green-500' : 'bg-indigo-500'}`} 
-          style={{ width: status === 'success' ? '100%' : `${progress.percent}%` }}
-        />
+    const showProgress = status === 'downloading' || status === 'success' || status === 'error';
+    
+    if (!showProgress) return null;
+    if (status !== 'error' && !progress) return null;
+    
+    return (
+      <div className={styles.progressContainer}>
+        <div className={styles.progressBarWrapper}>
+          <div 
+            className={`${styles.progressBar} ${
+              status === 'success' ? 'bg-green-500' : status === 'error' ? 'bg-red-500' : 'bg-indigo-500'
+            }`} 
+            style={{ 
+              width: status === 'success' || status === 'error' ? '100%' : `${progress?.percent}%` 
+            }}
+          />
+        </div>
+        <div className={styles.progressStats}>
+          {status === 'success' ? (
+            <span className="text-green-400 font-bold">Download done.</span>
+          ) : status === 'error' ? (
+            <span className="text-red-400 font-bold">Error has occurred, check console.</span>
+          ) : (
+            <>
+              <span>{progress?.percent}% ({progress?.filesize})</span>
+              <span>{progress?.speed} — ETA: {progress?.eta}</span>
+            </>
+          )}
+        </div>
       </div>
-      <div className={styles.progressStats}>
-        {status === 'success' ? (
-          <span className="text-green-400 font-bold">Download done.</span>
-        ) : (
-          <>
-            <span>{progress.percent}% ({progress.filesize})</span>
-            <span>{progress.speed} — ETA: {progress.eta}</span>
-          </>
-        )}
-      </div>
-    </div>
-  );
-};
+    );
+  };
 
   return (
     <div className={`${styles.wrapper} ${className}`}>
@@ -121,7 +121,7 @@ const VideoDisplayer: React.FC<VideoDisplayerProps> = ({ videos, onDownload, sta
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                  Download All
+                  {status === 'error' ? 'Retry Download' : 'Download All'}
                 </>
               )}
             </button>
@@ -158,7 +158,7 @@ const VideoDisplayer: React.FC<VideoDisplayerProps> = ({ videos, onDownload, sta
                       Downloading...
                     </>
                   ) : (
-                    "Download Now"
+                    status === 'error' ? 'Retry Download' : 'Download Now'
                   )}
                 </button>
               </div>
