@@ -1,6 +1,7 @@
 export type StatusType =
   | 'idle'
   | 'ready'
+  | 'fetching'
   | 'downloading'
   | 'success'
   | 'error';
@@ -11,6 +12,13 @@ export interface VideoMetadata {
   thumbnail?: string;
   author?: string;
   url: string;
+}
+
+export interface ProgressPayload {
+  percent:  number;
+  filesize: string;
+  speed:    string;
+  eta:      string;
 }
 
 type BaseRequest = {

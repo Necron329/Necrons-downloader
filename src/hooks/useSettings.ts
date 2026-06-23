@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AppConfig } from "../../shared/types/configData";
-import { settingsApi } from "../api/settingsAPI";
+import { settingsApi } from "../api/settingsApi";
 
 export interface SettingsState {
   autoUpdate: boolean;

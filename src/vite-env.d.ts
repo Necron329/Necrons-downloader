@@ -6,6 +6,7 @@ declare global {
     electronAPI: {
       getVideoMetadata: (payload: YtDlpRequest) => Promise<any>;
       startDownload: (payload: YtDlpRequest) => void;
+      onDownloadProgress: (callback: (data: ProgressPayload) => void) => () => void;
 
       checkForUpdates: () => Promise<{ error?: string }>;
 

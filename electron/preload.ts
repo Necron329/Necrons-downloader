@@ -1,9 +1,17 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { YtDlpRequest } from '../shared/types/downloadData';
+import { YtDlpRequest, ProgressPayload } from '../shared/types/downloadData';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   getVideoMetadata: (payload: YtDlpRequest) => ipcRenderer.invoke('get-video-metadata', payload),
   startDownload: (payload: YtDlpRequest) => ipcRenderer.invoke('start-download', payload),
+  onDownloadProgress: (callback: (data: ProgressPayload) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: ProgressPayload) =>
+      callback(data);
+
+    ipcRenderer.on('download-progress', handler);
+
+    return () => ipcRenderer.removeListener('download-progress', handler);
+  },
 
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 
