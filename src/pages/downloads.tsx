@@ -133,10 +133,10 @@ export default function Downloads() {
       <div className="flex justify-center">
         <button
           onClick={handleAnalyze}
-          disabled={!downloadUrl}
+          disabled={!downloadUrl || status === "fetching"}
           className={styles.analyzeBtn}
         >
-          Analyze
+          {status === "fetching" ? "Analyzing..." : "Analyze"}
         </button>
       </div>
 
@@ -192,7 +192,7 @@ export default function Downloads() {
                   updateSettings({ outputPath: nextPath });
                 }}
               />
-              <button 
+              <button
                 type="button"
                 onClick={handleSelectFolder}
                 className="p-2 bg-zinc-950 border-y border-r border-zinc-800 rounded-r text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95] cursor-pointer"
@@ -221,9 +221,9 @@ export default function Downloads() {
 
       {/* Results Section */}
       {analyzed && videoData.length > 0 && (
-        <VideoDisplayer 
-          videos={videoData} 
-          onDownload={handleDownload} 
+        <VideoDisplayer
+          videos={videoData}
+          onDownload={handleDownload}
           status={status}
           progress={progress}
         />

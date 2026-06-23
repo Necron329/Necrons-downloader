@@ -1,6 +1,7 @@
 export type StatusType =
   | 'idle'
   | 'ready'
+  | 'fetching'
   | 'downloading'
   | 'success'
   | 'error';
