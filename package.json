@@ -47,7 +47,8 @@
     "files": [
       "dist",
       "dist-electron",
-      "package.json"
+      "package.json",
+      "assets/**/*"
     ],
     "extraResources": [
       {
@@ -59,7 +60,8 @@
       }
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "assets/icon.ico"
     },
     "nsis": {
       "oneClick": false,

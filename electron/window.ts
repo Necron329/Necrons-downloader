@@ -1,6 +1,6 @@
-import { BrowserWindow } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import path from 'node:path'
-import { VITE_PUBLIC, VITE_DEV_SERVER_URL, RENDERER_DIST, __dirname } from './config'
+import { VITE_DEV_SERVER_URL, RENDERER_DIST, __dirname } from './config'
 
 export let win: BrowserWindow | null = null
 export let isWindowReady = false
@@ -23,9 +23,13 @@ export function sendToast(message: string, duration: number = 4000) {
   }
 }
 
+const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets/icon.ico')
+    : path.join(__dirname, '../assets/icon.ico')
+
 export function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(VITE_PUBLIC, 'electron-vite.svg'),
+    icon: iconPath,
     width: 840,
     height: 1000,
     webPreferences: {
