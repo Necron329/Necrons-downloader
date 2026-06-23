@@ -35,26 +35,27 @@ No compilation is required. To use the application:
 If you wish to download the source code, modify it, or contribute to the project:
 
 1. Clone the repository:
-
-git clone \[https://github.com/your-username/necrons-downloader.git\](https://github.com/your-username/necrons-downloader.git)  
+```
+git clone https://github.com/your-username/necrons-downloader.git
 cd necrons-downloader
+```
 
 2. Install dependencies:
-
+```
 npm install
-
+```
 3. Run the setup script (this downloads required resources such as yt-dlp, ffmpeg, and other external binaries):
-
+```
 npm run setup
-
+```
 4. Start the application in development mode:
-
+```
 npm run dev
-
+```
 5. Build the production version (compiles the .exe file):
-
+```
 npm run build
-
+```
 ## **Contributing**
 
 This project is open to collaboration. If you have an idea for a new feature, have found a bug, or want to improve the codebase, feel free to open an Issue or submit a Pull Request. All contributions are welcome.
