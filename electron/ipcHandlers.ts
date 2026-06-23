@@ -5,7 +5,7 @@ import { spawn } from 'child_process'
 import { autoUpdater } from 'electron-updater'
 import { ytDlpPath, resourcesPath, configStore } from './config'
 import { sendToast, toastQueue, setIsWindowReady } from './window'
-import { YtDlpRequest } from '../shared/types/downloadData'
+import { YtDlpRequest, ProgressPayload } from '../shared/types/downloadData'
 
 const getValidatedPath = (outputPath: string): string => {
   const template = '%(title)s.%(ext)s';
@@ -91,7 +91,7 @@ export function setupIpcHandlers() {
     });
   });
 
-  ipcMain.handle('start-download', async (_, payload: YtDlpRequest) => {
+  ipcMain.handle('start-download', async (event, payload: YtDlpRequest) => {
     if (!ytDlpPath || !resourcesPath) {
       return { error: 'Invalid internal paths' };
     }
@@ -107,6 +107,7 @@ export function setupIpcHandlers() {
       url,
       '--output', finalOutputPath,
       '--ffmpeg-location', resourcesPath,
+      '--js-runtimes', 'node',
       '--newline',
       '--progress'
     ];
@@ -137,14 +138,34 @@ export function setupIpcHandlers() {
 
       child.stdout.on('data', (data) => {
         const text = data.toString();
-        console.log(text);
+
+        const progressMatch = text.match(
+          /\[download\]\s+([\d.]+)%\s+of\s+([\d.]+\w+)\s+at\s+([\d.]+\w+\/s)\s+ETA\s+([\d:]+)/
+        );
+
+        if (progressMatch) {
+          const progress: ProgressPayload = {
+            percent: parseFloat(progressMatch[1]),
+            filesize: progressMatch[2],
+            speed: progressMatch[3],
+            eta: progressMatch[4],
+          };
+          event.sender.send('download-progress', progress);
+        }
       });
 
-      child.on('error', (err) => {
-        resolve({ error: 'Failed to start', details: err.message });
+      child.stderr.on('data', (data) => {
+        console.error('[yt-dlp stderr]', data.toString());
       });
+
+      child.on('error', (err) => resolve({ error: 'Failed to start', details: err.message }));
 
       child.on('close', (code) => {
+        if (code === 0) {
+          event.sender.send('download-progress', {
+            percent: 100, filesize: '', speed: '', eta: '00:00'
+          } satisfies ProgressPayload);
+        }
         resolve(code === 0
           ? { success: true, path: finalOutputPath }
           : { error: 'Download failed', code }
