@@ -11,6 +11,7 @@ declare global {
       checkForUpdates: () => Promise<{ error?: string }>;
 
       chooseDirectory: () => Promise<string | ''>;
+      openDirectory: (path: string) => Promise<{ success: boolean; error?: string }>;
 
       getSettings: () => Promise<AppConfig>;
       updateSettings: (newPartialConfig: Partial<AppConfig>) => Promise<boolean>;

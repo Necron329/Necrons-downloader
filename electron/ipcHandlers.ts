@@ -1,4 +1,4 @@
-import { app, ipcMain, dialog } from 'electron'
+import { app, ipcMain, dialog, shell } from 'electron'
 import path from 'node:path'
 import fs from 'node:fs'
 import { spawn } from 'child_process'
@@ -184,6 +184,23 @@ export function setupIpcHandlers() {
       return '';
     } else {
       return filePaths[0];
+    }
+  });
+
+  ipcMain.handle('dialog:openDirectory', async (_, dirPath: string) => {
+    if (!dirPath) return { success: false, error: 'Path is empty' };
+    try {
+      if (fs.existsSync(dirPath)) {
+        const errorMessage = await shell.openPath(dirPath);
+        if (errorMessage) {
+          return { success: false, error: errorMessage };
+        }
+        return { success: true };
+      } else {
+        return { success: false, error: 'Directory does not exist' };
+      }
+    } catch (error: any) {
+      return { success: false, error: error.message };
     }
   });
 

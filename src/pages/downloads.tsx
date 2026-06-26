@@ -1,6 +1,6 @@
 import { useDownloadService } from "../contexts/downloadProvider";
 import VideoDisplayer from "../components/videoDisplayer";
-import { Loader2, X, FolderOpen } from "lucide-react";
+import { Loader2, X, FolderOpen, Copy, ExternalLink } from "lucide-react";
 
 const styles = {
   container: "relative overflow-hidden w-full p-6 max-w-xl mx-auto mt-10 bg-zinc-900 text-zinc-100 font-sans rounded-2xl border border-zinc-800 shadow-2xl",
@@ -43,6 +43,7 @@ export default function Downloads() {
     outputPath,
     setOutputPath,
     chooseDirectory,
+    openDirectoryInExplorer,
     updateSettings,
     progress
   } = useDownloadService();
@@ -95,6 +96,18 @@ export default function Downloads() {
 
   const handleSelectFolder = async () => {
     await chooseDirectory();
+  };
+
+  const handleCopyPath = () => {
+    if (outputPath) {
+      navigator.clipboard.writeText(outputPath);
+    }
+  };
+
+  const handleOpenExplorer = () => {
+    if (outputPath) {
+      openDirectoryInExplorer(outputPath);
+    }
   };
 
   return (
@@ -192,6 +205,22 @@ export default function Downloads() {
                   updateSettings({ outputPath: nextPath });
                 }}
               />
+              <button
+                type="button"
+                onClick={handleCopyPath}
+                className="p-2 bg-zinc-950 border-y border-r border-zinc-800 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95] cursor-pointer"
+                title="Copy path"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenExplorer}
+                className="p-2 bg-zinc-950 border-y border-r border-zinc-800 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95] cursor-pointer"
+                title="Open in File Explorer"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </button>
               <button
                 type="button"
                 onClick={handleSelectFolder}

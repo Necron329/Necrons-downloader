@@ -122,6 +122,19 @@ export default function downloadService() {
         }
     };
 
+    const openDirectoryInExplorer = async (path: string): Promise<void> => {
+        if (!path) return;
+        try {
+            const result = await window.electronAPI.openDirectory(path);
+            if (!result.success) {
+                addToast(`Cannot open directory: ${result.error}`, 5000);
+            }
+        } catch (error) {
+            addToast('Error while opening directory.', 5000);
+            console.error("Error opening directory:", error);
+        }
+    };
+
     // returning the consts
     return {
         downloadUrl,
@@ -143,6 +156,7 @@ export default function downloadService() {
         setIsPlaylist,
         videoData,
         chooseDirectory,
+        openDirectoryInExplorer,
         getVideoMetadata,
         updateSettings,
         processDownloadLink,
