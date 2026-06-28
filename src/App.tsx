@@ -2,18 +2,16 @@ import { useState } from "react";
 import "./App.css";
 
 // context
-import { ToastProvider } from "./contexts/toastProvider";
-import { DownloadProvider } from "./contexts/downloadProvider";
-import { SettingsProvider } from "./contexts/settingsProvider";
+import { AppProviders } from "./contexts/AppProviders";
 
 // components
-import Header from "./components/header";
-import Sidebar from "./components/sidebar";
-import Toast from "./components/toast";
+import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
+import Toast from "./components/Toast";
 
 // pages
-import Downloads from "./pages/downloads";
-import Settings from "./pages/settings";
+import Downloads from "./pages/Downloads";
+import Settings from "./pages/Settings";
 
 function App() {
   const [collapsed, setCollapsed] = useState(true);
@@ -35,25 +33,21 @@ function App() {
   };
 
   return (
-    <ToastProvider>
-      <SettingsProvider>
-        <DownloadProvider>
-          <div className="h-screen flex flex-col">
-            <Header onToggleSidebar={toggleSidebar} />
+    <AppProviders>
+      <div className="h-screen flex flex-col">
+        <Header onToggleSidebar={toggleSidebar} />
 
-            <div className="flex flex-1 overflow-hidden">
-              <Sidebar collapsed={collapsed} setCurrentPage={setCurrentPage} />
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar collapsed={collapsed} setCurrentPage={setCurrentPage} />
 
-              <main className="flex-1 bg-zinc-950 text-white p-4 overflow-y-auto">
-                {renderPage()}
-              </main>
-            </div>
-          </div>
+          <main className="flex-1 bg-zinc-950 text-white p-4 overflow-y-auto">
+            {renderPage()}
+          </main>
+        </div>
+      </div>
 
-          <Toast />
-        </DownloadProvider>
-      </SettingsProvider>
-    </ToastProvider>
+      <Toast />
+    </AppProviders>
   );
 }
 

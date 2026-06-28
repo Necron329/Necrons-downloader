@@ -1,6 +1,6 @@
 import { VideoMetadata, StatusType, ProgressPayload } from '../../shared/types/downloadData';
 import { Loader2 } from "lucide-react";
-
+import clsx from 'clsx';
 
 interface VideoDisplayerProps {
   videos: VideoMetadata[];
@@ -10,28 +10,7 @@ interface VideoDisplayerProps {
   className?: string;
 }
 
-const styles = {
-  wrapper: "mt-6 p-4 bg-zinc-950 border border-zinc-800 rounded-lg flex flex-col gap-4",
-  badgeIndigo: "bg-indigo-950 text-indigo-400 border border-indigo-900 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded",
-  badgeZinc: "inline-block bg-zinc-900 text-zinc-400 border border-zinc-800 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
-  downloadBtn: "w-full sm:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white text-xs font-bold rounded shadow-lg shadow-indigo-500/10 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:cursor-default cursor-pointer",
-  playlistContainer: "flex flex-col gap-3",
-  playlistHeader: "flex items-center justify-between border-b border-zinc-900 pb-3",
-  playlistScrollArea: "space-y-2 max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-800",
-  playlistItem: "flex items-center gap-3 text-xs py-1 border-b border-zinc-900/50 last:border-0",
-  videoLayout: "flex flex-col sm:flex-row gap-4",
-  thumbnailWrapper: "relative w-full sm:w-48 aspect-video rounded-md overflow-hidden bg-zinc-900 border border-zinc-800 flex-shrink-0",
-  durationTag: "absolute bottom-1 right-1 bg-zinc-900/90 text-zinc-300 text-[10px] px-1.5 py-0.5 rounded border border-zinc-800 font-mono",
-  videoInfo: "flex flex-col justify-between flex-grow min-w-0",
-  videoTitle: "text-sm font-medium text-zinc-100 line-clamp-2 leading-snug",
-  videoAuthor: "text-xs text-zinc-500 truncate mt-1",
-  progressContainer: "w-full mt-2 bg-zinc-900 border border-zinc-800 rounded-lg p-3 flex flex-col gap-2",
-  progressBarWrapper: "w-full bg-zinc-800 h-2 rounded-full overflow-hidden",
-  progressBar: "bg-indigo-500 h-full transition-all duration-200 ease-out",
-  progressStats: "flex justify-between text-[11px] text-zinc-400 font-mono"
-};
-
-const VideoDisplayer: React.FC<VideoDisplayerProps> = ({ videos, onDownload, status, progress, className = "" }) => {
+export default function VideoDisplayer({ videos, onDownload, status, progress, className = "" }: VideoDisplayerProps) {
   if (!videos || videos.length === 0) return null;
 
   const isPlaylist = videos.length > 1;
@@ -55,9 +34,9 @@ const VideoDisplayer: React.FC<VideoDisplayerProps> = ({ videos, onDownload, sta
       <div className={styles.progressContainer}>
         <div className={styles.progressBarWrapper}>
           <div 
-            className={`${styles.progressBar} ${
+            className={clsx(styles.progressBar, 
               status === 'success' ? 'bg-green-500' : status === 'error' ? 'bg-red-500' : 'bg-indigo-500'
-            }`} 
+            )} 
             style={{ 
               width: status === 'success' || status === 'error' ? '100%' : `${progress?.percent}%` 
             }}
@@ -80,8 +59,7 @@ const VideoDisplayer: React.FC<VideoDisplayerProps> = ({ videos, onDownload, sta
   };
 
   return (
-    <div className={`${styles.wrapper} ${className}`}>
-
+    <div className={clsx(styles.wrapper, className)}>
       {isPlaylist ? (
         <div className={styles.playlistContainer}>
           <div className={styles.playlistHeader}>
@@ -118,9 +96,6 @@ const VideoDisplayer: React.FC<VideoDisplayerProps> = ({ videos, onDownload, sta
                 </>
               ) : (
                 <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
                   {status === 'error' ? 'Retry Download' : 'Download All'}
                 </>
               )}
@@ -145,7 +120,7 @@ const VideoDisplayer: React.FC<VideoDisplayerProps> = ({ videos, onDownload, sta
 
             <div className={styles.videoInfo}>
               <div>
-                <span className={`${styles.badgeZinc} mb-2`}>Video</span>
+                <span className={clsx(styles.badgeZinc, "mb-2")}>Video</span>
                 <h2 className={styles.videoTitle}>{mainVideo.title}</h2>
                 <p className={styles.videoAuthor}>{mainVideo.author}</p>
               </div>
@@ -170,6 +145,25 @@ const VideoDisplayer: React.FC<VideoDisplayerProps> = ({ videos, onDownload, sta
       )}
     </div>
   );
-};
+}
 
-export default VideoDisplayer;
+const styles = {
+  wrapper: "mt-6 p-4 bg-zinc-950 border border-zinc-800 rounded-lg flex flex-col gap-4",
+  badgeIndigo: "bg-indigo-950 text-indigo-400 border border-indigo-900 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded",
+  badgeZinc: "inline-block bg-zinc-900 text-zinc-400 border border-zinc-800 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
+  downloadBtn: "w-full sm:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white text-xs font-bold rounded shadow-lg shadow-indigo-500/10 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:cursor-default cursor-pointer",
+  playlistContainer: "flex flex-col gap-3",
+  playlistHeader: "flex items-center justify-between border-b border-zinc-900 pb-3",
+  playlistScrollArea: "space-y-2 max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-800",
+  playlistItem: "flex items-center gap-3 text-xs py-1 border-b border-zinc-900/50 last:border-0",
+  videoLayout: "flex flex-col sm:flex-row gap-4",
+  thumbnailWrapper: "relative w-full sm:w-48 aspect-video rounded-md overflow-hidden bg-zinc-900 border border-zinc-800 flex-shrink-0",
+  durationTag: "absolute bottom-1 right-1 bg-zinc-900/90 text-zinc-300 text-[10px] px-1.5 py-0.5 rounded border border-zinc-800 font-mono",
+  videoInfo: "flex flex-col justify-between flex-grow min-w-0",
+  videoTitle: "text-sm font-medium text-zinc-100 line-clamp-2 leading-snug",
+  videoAuthor: "text-xs text-zinc-500 truncate mt-1",
+  progressContainer: "w-full mt-2 bg-zinc-900 border border-zinc-800 rounded-lg p-3 flex flex-col gap-2",
+  progressBarWrapper: "w-full bg-zinc-800 h-2 rounded-full overflow-hidden",
+  progressBar: "h-full transition-all duration-200 ease-out",
+  progressStats: "flex justify-between text-[11px] text-zinc-400 font-mono"
+};

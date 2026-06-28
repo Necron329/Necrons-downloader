@@ -1,21 +1,13 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
-interface ToastData {
+export interface ToastData {
   id: string;
   message: string;
   isExiting?: boolean;
   duration?: number;
 }
 
-interface ToastContextType {
-  toasts: ToastData[];
-  addToast: (message: string, duration?: number) => void;
-  triggerExit: (id: string) => void;
-}
-
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
-
-export function ToastProvider({ children }: { children: React.ReactNode }) {
+export default function useToastService() {
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   const triggerExit = (id: string) => {
@@ -40,7 +32,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (window.electronAPI && typeof window.electronAPI.onShowToast === 'function') {
-      const unsubscribe = window.electronAPI.onShowToast((data) => {
+      const unsubscribe = window.electronAPI.onShowToast((data: any) => {
         addToast(data.message, data.duration);
       });
 
@@ -52,17 +44,5 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  return (
-    <ToastContext.Provider value={{ toasts, addToast, triggerExit }}>
-      {children}
-    </ToastContext.Provider>
-  );
-}
-
-export function useToast() {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return context;
+  return { toasts, addToast, triggerExit };
 }

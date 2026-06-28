@@ -1,25 +1,6 @@
-import { useDownloadService } from "../contexts/downloadProvider";
-import VideoDisplayer from "../components/videoDisplayer";
+import { useDownloadService } from "../contexts/DownloadContext";
+import VideoDisplayer from "../components/VideoDisplayer";
 import { Loader2, X, FolderOpen, Copy, ExternalLink } from "lucide-react";
-
-const styles = {
-  container: "relative overflow-hidden w-full p-6 max-w-xl mx-auto mt-10 bg-zinc-900 text-zinc-100 font-sans rounded-2xl border border-zinc-800 shadow-2xl",
-  header: "text-xl font-semibold tracking-tight mb-6 text-white",
-  inputArea: "relative mb-4",
-  input: "w-full pl-4 pr-10 py-2 bg-zinc-950 border border-zinc-800 rounded-lg outline-none transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 placeholder:text-zinc-600 text-sm",
-  clearBtn: "absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-zinc-500 hover:text-zinc-200 transition-colors cursor-pointer",
-  analyzeBtn: "w-full px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-[0.97] bg-zinc-100 text-zinc-900 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 cursor-pointer disabled:cursor-default",
-  configSection: "mt-6 pt-4 border-t border-zinc-800",
-  configTitle: "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 mb-3",
-  settingsGrid: "grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4",
-  settingRow: "flex items-center justify-between gap-4",
-  label: "text-xs font-medium text-zinc-400 whitespace-nowrap",
-  select: "w-32 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 disabled:opacity-30 transition-all cursor-pointer",
-  checkboxWrapper: "flex items-center space-x-2 cursor-pointer group mt-4",
-  checkbox: "w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-950 text-indigo-600 focus:ring-offset-zinc-900 focus:ring-indigo-500 transition-all cursor-pointer",
-  checkboxLabel: "text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors",
-  loadingOverlay: "absolute inset-0 bg-zinc-950/70 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all duration-300",
-};
 
 export default function Downloads() {
   const {
@@ -64,7 +45,7 @@ export default function Downloads() {
         setAnalyzed(true);
       } catch (error) {
         setAnalyzed(false);
-        console.error(error);
+        console.error('[Downloads] Link analysis failed:', error);
       }
     } else {
       setAnalyzed(false);
@@ -83,7 +64,7 @@ export default function Downloads() {
           outputPath,
         });
       } catch (error) {
-        console.error(error);
+        console.error('[Downloads] Execution failed:', error);
       }
     }
   };
@@ -112,17 +93,15 @@ export default function Downloads() {
 
   return (
     <div className={styles.container}>
-      {/* Loading Overlay */}
       {isLoading && (
         <div className={styles.loadingOverlay}>
-          <Loader2 className="animate-spin h-8 w-8 text-indigo-500 mb-2" />
-          <span className="text-xs font-medium text-zinc-400">Loading settings...</span>
+          <Loader2 className={styles.loaderIcon} />
+          <span className={styles.loadingText}>Loading settings...</span>
         </div>
       )}
 
       <h1 className={styles.header}>Downloads</h1>
 
-      {/* Input Link Section */}
       <div className={styles.inputArea}>
         <input
           type="text"
@@ -142,8 +121,7 @@ export default function Downloads() {
         )}
       </div>
 
-      {/* Analyze Trigger */}
-      <div className="flex justify-center">
+      <div className={styles.analyzeBtnWrapper}>
         <button
           onClick={handleAnalyze}
           disabled={!downloadUrl || status === "fetching"}
@@ -153,7 +131,6 @@ export default function Downloads() {
         </button>
       </div>
 
-      {/* Configuration Section */}
       <div className={styles.configSection}>
         <h3 className={styles.configTitle}>Configuration</h3>
 
@@ -191,14 +168,13 @@ export default function Downloads() {
             </select>
           </div>
 
-          {/* Full-width Output Path Component Row */}
-          <div className="flex flex-col gap-2 sm:col-span-2 mt-2">
+          <div className={styles.outputPathWrapper}>
             <label className={styles.label}>Output Path</label>
-            <div className="flex items-center w-full">
+            <div className={styles.outputPathInputGroup}>
               <input
                 type="text"
                 placeholder="e.g. C:\Users\Name\Downloads"
-                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-l px-3 py-1.5 text-xs outline-none focus:border-indigo-500 transition-all text-zinc-200 placeholder:text-zinc-700"
+                className={styles.outputPathInput}
                 value={outputPath || ""}
                 onChange={(e) => {
                   const nextPath = e.target.value;
@@ -209,7 +185,7 @@ export default function Downloads() {
               <button
                 type="button"
                 onClick={handleCopyPath}
-                className="p-2 bg-zinc-950 border-y border-r border-zinc-800 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95] cursor-pointer"
+                className={styles.iconBtnMiddle}
                 title="Copy path"
               >
                 <Copy className="w-4 h-4" />
@@ -217,7 +193,7 @@ export default function Downloads() {
               <button
                 type="button"
                 onClick={handleOpenExplorer}
-                className="p-2 bg-zinc-950 border-y border-r border-zinc-800 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95] cursor-pointer"
+                className={styles.iconBtnMiddle}
                 title="Open in File Explorer"
               >
                 <ExternalLink className="w-4 h-4" />
@@ -225,7 +201,7 @@ export default function Downloads() {
               <button
                 type="button"
                 onClick={handleSelectFolder}
-                className="p-2 bg-zinc-950 border-y border-r border-zinc-800 rounded-r text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95] cursor-pointer"
+                className={styles.iconBtnRight}
                 title="Select folder"
               >
                 <FolderOpen className="w-4 h-4" />
@@ -249,7 +225,6 @@ export default function Downloads() {
         </label>
       </div>
 
-      {/* Results Section */}
       {analyzed && videoData.length > 0 && (
         <VideoDisplayer
           videos={videoData}
@@ -261,3 +236,30 @@ export default function Downloads() {
     </div>
   );
 }
+
+const styles = {
+  container: "relative overflow-hidden w-full p-6 max-w-xl mx-auto mt-10 bg-zinc-900 text-zinc-100 font-sans rounded-2xl border border-zinc-800 shadow-2xl",
+  header: "text-xl font-semibold tracking-tight mb-6 text-white",
+  loadingOverlay: "absolute inset-0 bg-zinc-950/70 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all duration-300",
+  loaderIcon: "animate-spin h-8 w-8 text-indigo-500 mb-2",
+  loadingText: "text-xs font-medium text-zinc-400",
+  inputArea: "relative mb-4",
+  input: "w-full pl-4 pr-10 py-2 bg-zinc-950 border border-zinc-800 rounded-lg outline-none transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 placeholder:text-zinc-600 text-sm",
+  clearBtn: "absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-zinc-500 hover:text-zinc-200 transition-colors cursor-pointer",
+  analyzeBtnWrapper: "flex justify-center",
+  analyzeBtn: "w-full px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-[0.97] bg-zinc-100 text-zinc-900 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 cursor-pointer disabled:cursor-default",
+  configSection: "mt-6 pt-4 border-t border-zinc-800",
+  configTitle: "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 mb-3",
+  settingsGrid: "grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4",
+  settingRow: "flex items-center justify-between gap-4",
+  label: "text-xs font-medium text-zinc-400 whitespace-nowrap",
+  select: "w-32 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 disabled:opacity-30 transition-all cursor-pointer",
+  outputPathWrapper: "flex flex-col gap-2 sm:col-span-2 mt-2",
+  outputPathInputGroup: "flex items-center w-full",
+  outputPathInput: "flex-1 bg-zinc-950 border border-zinc-800 rounded-l px-3 py-1.5 text-xs outline-none focus:border-indigo-500 transition-all text-zinc-200 placeholder:text-zinc-700",
+  iconBtnMiddle: "p-2 bg-zinc-950 border-y border-r border-zinc-800 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95] cursor-pointer",
+  iconBtnRight: "p-2 bg-zinc-950 border-y border-r border-zinc-800 rounded-r text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-[0.95] cursor-pointer",
+  checkboxWrapper: "flex items-center space-x-2 cursor-pointer group mt-4",
+  checkbox: "w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-950 text-indigo-600 focus:ring-offset-zinc-900 focus:ring-indigo-500 transition-all cursor-pointer",
+  checkboxLabel: "text-[11px] text-zinc-500 group-hover:text-zinc-300 transition-colors",
+};

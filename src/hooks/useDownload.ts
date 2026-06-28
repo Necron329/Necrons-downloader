@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 
-import { useToast } from '../contexts/toastProvider';
+import { useToast } from '../contexts/ToastContext';
 
 import { YtDlpRequest, StatusType, VideoMetadata, ProgressPayload } from '../../shared/types/downloadData';
 import { AppConfig } from '../../shared/types/configData';
