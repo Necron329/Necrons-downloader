@@ -171,6 +171,7 @@ export default function Downloads() {
             >
               <option value="mp4">MP4</option>
               <option value="mp3">MP3</option>
+              <option value="subtitles">Subtitles (txt)</option>
             </select>
           </div>
 

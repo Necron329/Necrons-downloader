@@ -1,6 +1,7 @@
 import { app, ipcMain, dialog, shell } from 'electron'
 import path from 'node:path'
 import fs from 'node:fs'
+import fsPromises from 'node:fs/promises'
 import { spawn } from 'child_process'
 import { autoUpdater } from 'electron-updater'
 import { ytDlpPath, resourcesPath, configStore } from './config'
@@ -109,7 +110,8 @@ export function setupIpcHandlers() {
       '--ffmpeg-location', resourcesPath,
       '--js-runtimes', 'node',
       '--newline',
-      '--progress'
+      '--progress',
+      '--restrict-filenames'
     ];
 
     if (format === 'mp3') {
@@ -117,6 +119,13 @@ export function setupIpcHandlers() {
         '--extract-audio',
         '--audio-format', 'mp3',
         '--audio-quality', quality === 'best' ? '0' : '5'
+      );
+    } else if (format === 'subtitles') {
+      args.push(
+        '--write-sub',
+        '--write-auto-sub',
+        '--sub-lang', 'en.*',
+        '--skip-download'
       );
     } else {
       const formatSelector =
@@ -135,9 +144,14 @@ export function setupIpcHandlers() {
 
     return new Promise((resolve) => {
       const child = spawn(ytDlpPath, args);
+      let realDestinationPath = '';
 
       child.stdout.on('data', (data) => {
         const text = data.toString();
+        const destMatch = text.match(/Destination:\s+(.+)$/m) || text.match(/Writing video subtitles to:\s+(.+)$/m);
+        if (destMatch) {
+          realDestinationPath = destMatch[1].trim();
+        }
 
         const progressMatch = text.match(
           /\[download\]\s+([\d.]+)%\s+of\s+([\d.]+\w+)\s+at\s+([\d.]+\w+\/s)\s+ETA\s+([\d:]+)/
@@ -160,14 +174,76 @@ export function setupIpcHandlers() {
 
       child.on('error', (err) => resolve({ error: 'Failed to start', details: err.message }));
 
-      child.on('close', (code) => {
+      child.on('close', async (code) => {
+        let finalPathToReturn = finalOutputPath;
+
         if (code === 0) {
           event.sender.send('download-progress', {
             percent: 100, filesize: '', speed: '', eta: '00:00'
           } satisfies ProgressPayload);
+
+          if (format === 'subtitles') {
+            try {
+              const vttFile = realDestinationPath.trim().replace(/[\r\n]/g, '');
+              if (!vttFile) {
+                throw new Error('Failed to capture a valid VTT file path from stdout logs.');
+              }
+
+              const dirPath = path.dirname(vttFile);
+              const fileName = path.basename(vttFile);
+              const baseName = fileName.split('.')[0];
+              const txtFile = path.join(dirPath, `${baseName}.txt`);
+              finalPathToReturn = txtFile;
+
+              const content = await fsPromises.readFile(vttFile, 'utf8');
+
+              const rawLines = content
+                .replace(/WEBVTT/g, '')
+                .replace(/\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}/g, '')
+                .replace(/<[^>]*>/g, '')
+                .replace(/align:[^\s]+/g, '')
+                .replace(/position:[^\s]+/g, '')
+                .split('\n');
+
+              const uniqueLines: string[] = [];
+              let lastLine = '';
+
+              for (let line of rawLines) {
+                let cleanedLine = line.trim();
+                if (!cleanedLine || cleanedLine.startsWith('Kind:') || cleanedLine.startsWith('Language:')) {
+                  continue;
+                }
+                if (cleanedLine === lastLine) {
+                  continue;
+                }
+                uniqueLines.push(cleanedLine);
+                lastLine = cleanedLine;
+              }
+
+              const cleanText = uniqueLines.join('\n');
+              await fsPromises.writeFile(txtFile, cleanText);
+
+              await new Promise((r) => setTimeout(r, 100));
+
+              const allFiles = await fsPromises.readdir(dirPath);
+              for (const file of allFiles) {
+                if (file.startsWith(baseName) && file.endsWith('.vtt')) {
+                  const fullPathToDelete = path.join(dirPath, file);
+                  await fsPromises.unlink(fullPathToDelete);
+                  console.log(`[Cleanup] Removed temporary file: ${file}`);
+                }
+              }
+
+            } catch (err: any) {
+              console.error('[Error] Subtitles conversion or cleanup failed:', err);
+            }
+          } else if (realDestinationPath) {
+            finalPathToReturn = realDestinationPath;
+          }
         }
+
         resolve(code === 0
-          ? { success: true, path: finalOutputPath }
+          ? { success: true, path: finalPathToReturn }
           : { error: 'Download failed', code }
         );
       });
