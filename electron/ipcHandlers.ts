@@ -4,9 +4,16 @@ import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import { spawn } from 'child_process'
 import { autoUpdater } from 'electron-updater'
-import { ytDlpPath, resourcesPath, configStore } from './config'
+import { ytDlpPath, resourcesPath, configStore, ffprobePath } from './config' // Import ffprobePath
 import { sendToast, toastQueue, setIsWindowReady } from './window'
 import { YtDlpRequest, ProgressPayload } from '../shared/types/downloadData'
+
+interface FileMetadata {
+  title: string;
+  author: string;
+  description: string;
+  thumbnailPath: string;
+}
 
 const getValidatedPath = (outputPath: string): string => {
   const template = '%(title)s.%(ext)s';
@@ -326,5 +333,131 @@ export function setupIpcHandlers() {
       console.error('Error while checking for updates:', error);
       return { error: 'Failed to check for updates' };
     }
+  });
+
+  ipcMain.handle('dialog:selectMediaFile', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: 'Select Media File to Edit',
+      properties: ['openFile'],
+      filters: [
+        { name: 'Media Files', extensions: ['mp4', 'm4a', 'mp3', 'mkv', 'webm'] }
+      ]
+    });
+    return canceled ? '' : filePaths[0];
+  });
+
+  ipcMain.handle('dialog:selectImageFile', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: 'Select Thumbnail Image',
+      properties: ['openFile'],
+      filters: [
+        { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'webp'] }
+      ]
+    });
+    return canceled ? '' : filePaths[0];
+  });
+
+  ipcMain.handle('metadata:read', async (_, filePath: string) => {
+    if (!ffprobePath || !fs.existsSync(filePath)) {
+      return { error: 'Invalid path or ffprobe missing' };
+    }
+
+    const args = [
+      '-v', 'quiet',
+      '-print_format', 'json',
+      '-show_format',
+      filePath
+    ];
+
+    return new Promise((resolve) => {
+      const child = spawn(ffprobePath, args);
+      let stdout = '';
+
+      child.stdout.on('data', (d) => (stdout += d));
+      
+      child.on('close', (code) => {
+        if (code !== 0) {
+          return resolve({ error: 'Failed to read metadata' });
+        }
+
+        try {
+          const parsed = JSON.parse(stdout);
+          const tags = parsed.format?.tags || {};
+
+          resolve({
+            title: tags.title || tags.TITLE || '',
+            author: tags.artist || tags.ARTIST || tags.author || tags.AUTHOR || '',
+            description: tags.comment || tags.COMMENT || tags.description || tags.DESCRIPTION || '',
+            thumbnailPath: ''
+          });
+        } catch (e: any) {
+          resolve({ error: 'Failed to parse metadata JSON', details: e.message });
+        }
+      });
+    });
+  });
+
+  ipcMain.handle('metadata:update', async (_, { filePath, metadata }: { filePath: string, metadata: FileMetadata }) => {
+    if (!resourcesPath) {
+      return { success: false, error: 'FFmpeg resources path is missing' };
+    }
+
+    const ffmpegPath = path.join(resourcesPath, process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg');
+    
+    const ext = path.extname(filePath);
+    const dir = path.dirname(filePath);
+    const tempOutputFile = path.join(dir, `temp_metadata_${Date.now()}${ext}`);
+
+    const args: string[] = ['-i', filePath];
+
+    if (metadata.thumbnailPath && fs.existsSync(metadata.thumbnailPath)) {
+      args.push('-i', metadata.thumbnailPath, '-map', '0', '-map', '1');
+      
+      if (ext.toLowerCase() === '.mp3') {
+        args.push('-c:v', 'mjpeg', '-id3v2_version', '3');
+      } else if (ext.toLowerCase() === '.mp4' || ext.toLowerCase() === '.m4a') {
+        args.push('-c:v:1', 'png', '-disposition:v:1', 'attached_pic');
+      } else {
+        args.push('-c:v:1', 'copy', '-disposition:v:1', 'attached_pic');
+      }
+    } else {
+      args.push('-map', '0');
+    }
+
+    if (metadata.title) args.push('-metadata', `title=${metadata.title}`);
+    if (metadata.author) args.push('-metadata', `artist=${metadata.author}`);
+    if (metadata.description) {
+      args.push('-metadata', `comment=${metadata.description}`);
+      if (ext.toLowerCase() === '.mp4' || ext.toLowerCase() === '.m4a') {
+        args.push('-metadata', `description=${metadata.description}`);
+      }
+    }
+
+    args.push('-c:a', 'copy', '-c:v:0', 'copy', '-movflags', 'use_metadata_tags', tempOutputFile);
+
+    return new Promise((resolve) => {
+      const child = spawn(ffmpegPath, args);
+
+      let stderr = '';
+      child.stderr.on('data', (d) => (stderr += d));
+
+      child.on('close', async (code) => {
+        if (code !== 0) {
+          console.error('[FFmpeg Error]', stderr);
+          return resolve({ success: false, error: `FFmpeg failed with code ${code}` });
+        }
+
+        try {
+          await fsPromises.unlink(filePath);
+          await fsPromises.rename(tempOutputFile, filePath);
+          resolve({ success: true });
+        } catch (err: any) {
+          if (fs.existsSync(tempOutputFile)) {
+            await fsPromises.unlink(tempOutputFile).catch(() => {});
+          }
+          resolve({ success: false, error: `File swap failed: ${err.message}` });
+        }
+      });
+    });
   });
 }

@@ -22,16 +22,30 @@ export default function useMetadata() {
 
   const selectMediaFile = async () => {
     try {
-      // Wymaga dodania w preload.ts: window.electronAPI.selectMediaFile()
-      const path = await (window as any).electronAPI.selectMediaFile();
+      const path = await window.electronAPI.selectMediaFile();
       if (path) {
         setFilePath(path);
-        // Opcjonalnie: automatyczne ładowanie istniejących metadanych
-        // loadMetadata(path);
+        setStatus('processing');
+        
+        const existingMetadata = await window.electronAPI.readMetadata(path);
+        
+        if (existingMetadata && !('error' in existingMetadata)) {
+          setMetadata({
+            title: existingMetadata.title || '',
+            author: existingMetadata.author || '',
+            description: existingMetadata.description || '',
+            thumbnailPath: '',
+          });
+          setStatus('idle');
+        } else {
+          setMetadata({ title: '', author: '', description: '', thumbnailPath: '' });
+          setStatus('idle');
+        }
       }
     } catch (error) {
-      addToast('Error selecting file.', 5000);
+      addToast('Error selecting or reading file.', 5000);
       console.error('Error selecting file:', error);
+      setStatus('error');
     }
   };
 

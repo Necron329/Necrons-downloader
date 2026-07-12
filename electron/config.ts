@@ -14,11 +14,18 @@ export const configStore = new Store({ name: 'user-config' })
 
 export let resourcesPath: string
 export let ytDlpPath: string
+export let ffprobePath: string
+
+const isWin = process.platform === 'win32'
+const ytDlpBinary = isWin ? 'yt-dlp.exe' : 'yt-dlp'
+const ffprobeBinary = isWin ? 'ffprobe.exe' : 'ffprobe'
 
 if (app.isPackaged) {
   resourcesPath = path.join(process.resourcesPath)
-  ytDlpPath = path.join(resourcesPath, "yt-dlp.exe")
+  ytDlpPath = path.join(resourcesPath, ytDlpBinary)
+  ffprobePath = path.join(resourcesPath, ffprobeBinary) 
 } else {
   resourcesPath = path.join(APP_ROOT, "resources")
-  ytDlpPath = path.join(resourcesPath, "yt-dlp.exe")
+  ytDlpPath = path.join(resourcesPath, ytDlpBinary)
+  ffprobePath = path.join(resourcesPath, ffprobeBinary) 
 }

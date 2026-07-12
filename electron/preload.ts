@@ -13,6 +13,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('download-progress', handler);
   },
 
+  selectMediaFile: () => ipcRenderer.invoke('dialog:selectMediaFile'),
+  selectImageFile: () => ipcRenderer.invoke('dialog:selectImageFile'),
+  readMetadata: (filePath: string) => ipcRenderer.invoke('metadata:read', filePath),
+  updateMetadata: (filePath: string, metadata: any) => ipcRenderer.invoke('metadata:update', { filePath, metadata }),
+
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 
   chooseDirectory: () => ipcRenderer.invoke('dialog:chooseDirectory'),
