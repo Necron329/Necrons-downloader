@@ -1,17 +1,15 @@
 import { useState } from "react";
 import "./App.css";
 
-// context
 import { AppProviders } from "./contexts/AppProviders";
 
-// components
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import Toast from "./components/Toast";
 
-// pages
 import Downloads from "./pages/Downloads";
 import Settings from "./pages/Settings";
+import MetadataEditor from "./pages/MetadataEditor";
 
 function App() {
   const [collapsed, setCollapsed] = useState(true);
@@ -25,6 +23,8 @@ function App() {
     switch (currentPage) {
       case "downloads":
         return <Downloads />;
+      case "metadata":
+        return <MetadataEditor />;
       case "settings":
         return <Settings />;
       default:

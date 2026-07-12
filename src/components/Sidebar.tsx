@@ -1,4 +1,4 @@
-import { Download, Settings } from "lucide-react";
+import { Download, Settings, FileEdit } from "lucide-react";
 import clsx from "clsx";
 
 type SidebarProps = {
@@ -8,6 +8,7 @@ type SidebarProps = {
 
 const menuItems = [
   { icon: Download, label: "Downloads" },
+  { icon: FileEdit, label: "Metadata" },
   { icon: Settings, label: "Settings" },
 ];
 
