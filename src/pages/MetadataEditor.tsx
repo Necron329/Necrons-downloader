@@ -1,4 +1,4 @@
-import useMetadata from "../hooks/useMetadata";
+import { useMetadataService } from "../contexts/MetadataContext";
 import { Loader2, FileAudio, Image as ImageIcon, X, Save } from "lucide-react";
 
 export default function MetadataEditor() {
@@ -11,7 +11,7 @@ export default function MetadataEditor() {
     saveMetadata,
     handleMetadataChange,
     clearState
-  } = useMetadata();
+  } = useMetadataService();
 
   const isProcessing = status === 'processing';
 
