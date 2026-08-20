@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { YtDlpRequest } from '../shared/types/downloadData';
+import { YtDlpRequest, ProgressPayload, FileMetadata } from '../shared/types/downloadData';
 
 declare global {
   interface Window {
@@ -20,6 +20,7 @@ declare global {
 
       getSettings: () => Promise<AppConfig>;
       updateSettings: (newPartialConfig: Partial<AppConfig>) => Promise<boolean>;
+      getAppVersion: () => Promise<string>;
 
       registerToastReady: () => Promise<any>;
       onShowToast: (callback: (data: { message: string; duration: number }) => void) => () => void;

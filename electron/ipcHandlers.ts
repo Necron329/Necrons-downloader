@@ -335,6 +335,10 @@ export function setupIpcHandlers() {
     }
   });
 
+  ipcMain.handle('app:get-version', () => {
+    return app.getVersion();
+  });
+
   ipcMain.handle('dialog:selectMediaFile', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: 'Select Media File to Edit',

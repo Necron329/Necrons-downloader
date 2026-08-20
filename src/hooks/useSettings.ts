@@ -13,8 +13,9 @@ const defaultSettings: SettingsState = {
 export default function useSettingsService() {
   const [settings, setSettings] = useState<SettingsState>(defaultSettings);
   const [checking, setChecking] = useState<boolean>(false);
+  const [appVersion, setAppVersion] = useState<string>('');
 
-  const { getSettings, updateSettings } = settingsApi();
+  const { getSettings, updateSettings, getVersion } = settingsApi();
 
   const checkForUpdates = async () => {
     setChecking(true);
@@ -45,7 +46,17 @@ export default function useSettingsService() {
               }
           };
   
+          const initVersion = async () => {
+              try {
+                  const version: string = await getVersion();
+                  setAppVersion(version);
+              } catch (error) {
+                  console.error("error while loading app version:", error);
+              }
+          };
+  
           initSettings();
+          initVersion();
       }, []);
 
   return {
@@ -54,6 +65,7 @@ export default function useSettingsService() {
     checking,
     setChecking,
     updateSettings,
-    checkForUpdates
+    checkForUpdates,
+    appVersion
   };
 }

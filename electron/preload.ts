@@ -20,6 +20,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 
+  getAppVersion: () => ipcRenderer.invoke('app:get-version'),
+
   chooseDirectory: () => ipcRenderer.invoke('dialog:chooseDirectory'),
   openDirectory: (path: string) => ipcRenderer.invoke('dialog:openDirectory', path),
 

@@ -25,8 +25,18 @@ export const settingsApi = () => {
     }
   };
 
+  const getVersion = async (): Promise<string> => {
+    try {
+      return await window.electronAPI.getAppVersion();
+    } catch (err) {
+      console.error('Failed to fetch app version:', err);
+      throw err;
+    }
+  };
+
   return {
     getSettings,
     updateSettings,
+    getVersion,
   };
 };
