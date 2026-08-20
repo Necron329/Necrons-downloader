@@ -11,9 +11,9 @@ const psCommand = `
 $r = '${resourcesDir}';
 if (!(Test-Path $r)) { New-Item -ItemType Directory -Path $r | Out-Null };
 
-# 1. Download yt-dlp
-Write-Host '1/2 Downloading yt-dlp.exe...' -ForegroundColor Cyan;
-$ytdlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
+# 1. Download yt-dlp nightly
+Write-Host '1/2 Downloading yt-dlp nightly...' -ForegroundColor Cyan;
+$ytdlpUrl = "https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/yt-dlp.exe";
 Invoke-WebRequest -Uri $ytdlpUrl -OutFile (Join-Path $r 'yt-dlp.exe');
 
 # 2. Download FFmpeg (Dynamic search for the latest Shared ZIP via GitHub API)
