@@ -1,4 +1,4 @@
-import { Download, Settings, FileEdit } from "lucide-react";
+import { Download, Settings, FileEdit, LifeBuoy } from "lucide-react";
 import clsx from "clsx";
 import { styles } from "./Sidebar.styles";
 
@@ -11,6 +11,7 @@ const menuItems = [
   { icon: Download, label: "Downloads" },
   { icon: FileEdit, label: "Metadata" },
   { icon: Settings, label: "Settings" },
+  { icon: LifeBuoy, label: "Help" },
 ];
 
 export default function Sidebar({ collapsed, setCurrentPage }: SidebarProps) {

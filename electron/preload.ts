@@ -25,6 +25,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   chooseDirectory: () => ipcRenderer.invoke('dialog:chooseDirectory'),
   openDirectory: (path: string) => ipcRenderer.invoke('dialog:openDirectory', path),
 
+  openExternalLink: (url: string) => ipcRenderer.invoke('open-external-link', url),
+
   getSettings: () => ipcRenderer.invoke('config:get-settings'),
   updateSettings: (newPartialConfig: any) => ipcRenderer.invoke('config:update-settings', newPartialConfig),
 

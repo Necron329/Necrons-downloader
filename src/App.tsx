@@ -10,6 +10,7 @@ import Toast from "./components/Toast";
 import Downloads from "./pages/Downloads";
 import Settings from "./pages/Settings";
 import MetadataEditor from "./pages/MetadataEditor";
+import Help from "./pages/Help";
 
 function App() {
   const [collapsed, setCollapsed] = useState(true);
@@ -27,6 +28,8 @@ function App() {
         return <MetadataEditor />;
       case "settings":
         return <Settings />;
+      case "help":
+        return <Help />;
       default:
         return <Downloads />;
     }

@@ -365,6 +365,17 @@ export function setupIpcHandlers() {
     return app.getVersion();
   });
 
+  ipcMain.handle('open-external-link', async (_, url: string) => {
+    try {
+      await shell.openExternal(url);
+      return { success: true };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Failed to open external link:', error);
+      return { success: false, error: message };
+    }
+  });
+
   ipcMain.handle('dialog:selectMediaFile', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: 'Select Media File to Edit',

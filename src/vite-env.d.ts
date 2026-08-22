@@ -22,6 +22,8 @@ declare global {
       updateSettings: (newPartialConfig: Partial<AppConfig>) => Promise<boolean>;
       getAppVersion: () => Promise<string>;
 
+      openExternalLink: (url: string) => Promise<{ success: boolean; error?: string }>;
+
       registerToastReady: () => Promise<any>;
       onShowToast: (callback: (data: { message: string; duration: number }) => void) => () => void;
     }
