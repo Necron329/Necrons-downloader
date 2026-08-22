@@ -4,4 +4,5 @@ export interface AppConfig {
   outputPath: string;
   isPlaylist: boolean;
   isAutoUpdateEnabled: boolean;
+  videoCompatibility: 'best' | 'compatible';
 }

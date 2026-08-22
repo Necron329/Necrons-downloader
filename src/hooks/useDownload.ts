@@ -21,6 +21,7 @@ export default function downloadService() {
     const [quality, setQuality] = useState<'best' | 'worst'>('best');
     const [outputPath, setOutputPath] = useState<string>('');
     const [isPlaylist, setIsPlaylist] = useState<boolean>(false);
+    const [videoCompatibility, setVideoCompatibility] = useState<'best' | 'compatible'>('best');
 
     const [progress, setProgress] = useState<ProgressPayload | null>(null);
 
@@ -34,6 +35,7 @@ export default function downloadService() {
                     if (settings.format) setFormat(settings.format);
                     if (settings.outputPath) setOutputPath(settings.outputPath);
                     if (settings.isPlaylist !== undefined) setIsPlaylist(settings.isPlaylist);
+                    if (settings.videoCompatibility) setVideoCompatibility(settings.videoCompatibility);
                 }
             } catch (error) {
                 console.error("Błąd podczas ładowania ustawień:", error);
@@ -154,6 +156,8 @@ export default function downloadService() {
         setOutputPath,
         isPlaylist,
         setIsPlaylist,
+        videoCompatibility,
+        setVideoCompatibility,
         videoData,
         chooseDirectory,
         openDirectoryInExplorer,

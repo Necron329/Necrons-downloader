@@ -4,9 +4,10 @@ import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import { spawn } from 'child_process'
 import { autoUpdater } from 'electron-updater'
-import { ytDlpPath, resourcesPath, configStore, ffprobePath } from './config' // Import ffprobePath
+import { ytDlpPath, resourcesPath, configStore, ffprobePath } from './config'
 import { sendToast, toastQueue, setIsWindowReady } from './window'
 import { YtDlpRequest, ProgressPayload } from '../shared/types/downloadData'
+import { inspectMedia, isCompatible, makeCompatible } from './videoCompatibility'
 
 interface FileMetadata {
   title: string;
@@ -208,7 +209,7 @@ export function setupIpcHandlers() {
       return { error: 'Invalid request type' };
     }
 
-    const { url, format, quality, isPlaylist } = payload;
+    const { url, format, quality, isPlaylist, videoCompatibility } = payload;
     const finalOutputPath = getValidatedPath(payload.outputPath);
 
     const args = buildYtDlpArgs(url, finalOutputPath, resourcesPath, format, quality, isPlaylist);
@@ -223,6 +224,11 @@ export function setupIpcHandlers() {
         const destMatch = text.match(/Destination:\s+(.+)$/m) || text.match(/Writing video subtitles to:\s+(.+)$/m);
         if (destMatch) {
           realDestinationPath = destMatch[1].trim();
+        }
+
+        const mergerMatch = text.match(/Merger\] Merging formats into\s+(.+)$/m);
+        if (mergerMatch) {
+          realDestinationPath = mergerMatch[1].trim().replace(/^["']|["']$/g, '');
         }
 
         const progressMatch = text.match(
@@ -259,6 +265,26 @@ export function setupIpcHandlers() {
               finalPathToReturn = await processSubtitles(realDestinationPath);
             } catch (err: any) {
               console.error('[Error] Subtitles conversion or cleanup failed:', err);
+            }
+          } else if (format === 'mp4' && videoCompatibility === 'compatible' && realDestinationPath) {
+            try {
+              const mediaInfo = await inspectMedia(realDestinationPath);
+
+              if (!isCompatible(mediaInfo)) {
+                event.sender.send('download-progress', {
+                  percent: 0, filesize: '', speed: '', eta: 'Processing...'
+                } satisfies ProgressPayload);
+
+                await makeCompatible(realDestinationPath, (progress) => {
+                  event.sender.send('download-progress', progress);
+                }, mediaInfo.duration);
+              }
+
+              finalPathToReturn = realDestinationPath;
+            } catch (err: any) {
+              console.error('[Compatibility] Error:', err);
+              resolve({ error: 'Compatibility conversion failed', details: err.message });
+              return;
             }
           } else if (realDestinationPath) {
             finalPathToReturn = realDestinationPath;

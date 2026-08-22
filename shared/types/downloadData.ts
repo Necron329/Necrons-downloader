@@ -37,6 +37,7 @@ export type DownloadRequest = BaseRequest & {
   outputPath: string;
   format?: string;
   quality?: 'best' | 'worst';
+  videoCompatibility?: 'best' | 'compatible';
 };
 
 export type YtDlpRequest = FetchRequest | DownloadRequest;

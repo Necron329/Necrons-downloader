@@ -1,5 +1,5 @@
 export const styles = {
-  container: "relative overflow-hidden w-full p-6 max-w-xl mx-auto mt-10 bg-zinc-900 text-zinc-100 font-sans rounded-2xl border border-zinc-800 shadow-2xl",
+  container: "relative overflow-visible w-full p-6 max-w-xl mx-auto mt-10 bg-zinc-900 text-zinc-100 font-sans rounded-2xl border border-zinc-800 shadow-2xl",
   header: "text-xl font-semibold tracking-tight mb-6 text-white",
   loadingOverlay: "absolute inset-0 bg-zinc-950/70 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all duration-300",
   loaderIcon: "animate-spin h-8 w-8 text-indigo-500 mb-2",
@@ -13,8 +13,10 @@ export const styles = {
   configTitle: "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 mb-3",
   settingsGrid: "grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4",
   settingRow: "flex items-center justify-between gap-4",
+  settingRowWithInfo: "flex items-center justify-between gap-2",
   label: "text-xs font-medium text-zinc-400 whitespace-nowrap",
   select: "w-32 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 disabled:opacity-30 transition-all cursor-pointer",
+  selectWide: "w-44 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 disabled:opacity-30 transition-all cursor-pointer",
   outputPathWrapper: "flex flex-col gap-2 sm:col-span-2 mt-2",
   outputPathInputGroup: "flex items-center w-full",
   outputPathInput: "flex-1 bg-zinc-950 border border-zinc-800 rounded-l px-3 py-1.5 text-xs outline-none focus:border-indigo-500 transition-all text-zinc-200 placeholder:text-zinc-700",
